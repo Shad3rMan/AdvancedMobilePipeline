@@ -12,7 +12,7 @@ public class Example : MonoBehaviour
 
     public static void GetSomeData(string key, Action<ResultData> completionHandler)
     {
-        new AndroidJavaClass("com.playtika.oneconnect.Example").CallStatic("getSomeDataWithCallback", key, MonoJavaCallback.ActionToJavaObject(completionHandler));
+        new AndroidJavaClass("com.playtika.ocunityplugin.Example").CallStatic("getSomeDataWithCallback", key, MonoJavaCallback.ActionToJavaObject(completionHandler));
     }
 
     private void Start()

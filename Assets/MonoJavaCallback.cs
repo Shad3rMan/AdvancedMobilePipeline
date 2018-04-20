@@ -9,7 +9,7 @@ public static class MonoJavaCallback
     {
         private readonly Action<T> _resultHandler;
 
-        public AndroidCallbackHandler(Action<T> resultHandler) : base("com.playtika.oneconnect.CallbackJsonHandler")
+        public AndroidCallbackHandler(Action<T> resultHandler) : base("com.playtika.ocunityplugin.CallbackJsonHandler")
         {
             _resultHandler = resultHandler;
         }
