@@ -25,9 +25,9 @@ public static class MessageHandler
         // Создаем инстанс JavaMessageHandler и передаем его 
         AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-        var c = new AndroidJavaClass("com.playtika.ocunityplugin.LoginActivity");
-        c.CallStatic("Call", currentActivity);
-        //c.CallStatic("registerMessageHandler", new JavaMessageHandler());
+        var c = new AndroidJavaClass("com.playtika.ocunityplugin.UnityBridge");
+        c.CallStatic("init", currentActivity);
+        c.CallStatic("registerMessageHandler", new JavaMessageHandler());
 
         //new AndroidJavaObject("com.playtika.ocunityplugin.LoginActivity").Call("onCreate");
 

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 public final class UnityBridge {
@@ -32,6 +33,13 @@ public final class UnityBridge {
 
     public static void AddWebView(Activity activity) {
         WebView webView = new WebView(activity);
+        Button closeButton = new Button(activity);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                OnButtonClick();
+            }
+        });
         FrameLayout frameLayout = new FrameLayout(activity);
         frameLayout.setLayoutParams(new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -41,15 +49,20 @@ public final class UnityBridge {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
-        frameLayout.addView(webView);
+        frameLayout.addView(closeButton);
         MoveTo(frameLayout, 100, 200);
         webView.loadUrl("http://www.tut.by");
+    }
+
+    public static  void OnButtonClick()
+    {
+        SendMessageToUnity("Message", "Data");
     }
 
     public static void MoveTo(View view, int newX, int newY){
         view.setX(newX);
         view.setY(newY);
-        view.setMinimumWidth(200);
+        view.setMinimumWidth(100);
         view.setMinimumHeight(100);
     }
 
