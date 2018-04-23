@@ -4,11 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.widget.Button;
-import android.widget.FrameLayout;
 
 public final class UnityBridge {
 
@@ -19,51 +14,6 @@ public final class UnityBridge {
         Log.d("Unity", "init");
         Intent myIntent = new Intent(activity, WebViewActivity.class);
         activity.startActivity(myIntent);
-        //AddView(activity);
-    }
-
-    public static void AddView(final Activity activity) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                AddWebView(activity);
-            }
-        });
-    }
-
-    public static void AddWebView(Activity activity) {
-        WebView webView = new WebView(activity);
-        Button closeButton = new Button(activity);
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                OnButtonClick();
-            }
-        });
-        FrameLayout frameLayout = new FrameLayout(activity);
-        frameLayout.setLayoutParams(new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-        ));
-        activity.addContentView(frameLayout, new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        ));
-        frameLayout.addView(closeButton);
-        MoveTo(frameLayout, 100, 200);
-        webView.loadUrl("http://www.tut.by");
-    }
-
-    public static  void OnButtonClick()
-    {
-        SendMessageToUnity("Message", "Data");
-    }
-
-    public static void MoveTo(View view, int newX, int newY){
-        view.setX(newX);
-        view.setY(newY);
-        view.setMinimumWidth(100);
-        view.setMinimumHeight(100);
     }
 
     public static void registerMessageHandler(JavaMessageHandler handler) {

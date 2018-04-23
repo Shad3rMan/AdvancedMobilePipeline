@@ -20,15 +20,19 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
 }
 
+task copyLibs(type: Copy, dependsOn: build) {
+    group 'build'
+    from configurations.compile
+    into 'libs'
+}
 
-task clearLibraryAar(type: Delete, dependsOn: build) {
+task clearLibraryAar(type: Delete, dependsOn: copyLibs) {
     delete fileTree("${deployAarPath}") {
         include 'oneconnect-**.aar'
     }

@@ -13,13 +13,25 @@ public static class MessageHandler
             Debug.Log(message);
             Debug.Log(data);
         }
+
+        public void onPageLoaded()
+        {
+        }
+
+        public void onError(string error)
+        {
+            Debug.Log(error);
+        }
+
+        public void onCloseRequested()
+        {
+        }
     }
 
     // Этот метод будет вызываться автоматически при инициализации Unity Engine в игре
     [RuntimeInitializeOnLoadMethod]
     private static void Initialize()
     {
-        //StartPackage("com.playtika.ocunityplugin.LoginActivity");
 #if !UNITY_EDITOR
         Debug.Log("Initialize()");
         // Создаем инстанс JavaMessageHandler и передаем его 
@@ -31,22 +43,6 @@ public static class MessageHandler
 
         //new AndroidJavaObject("com.playtika.ocunityplugin.LoginActivity").Call("onCreate");
 
-#endif
-    }
-
-    static void StartPackage(string package)
-    {
- #if !UNITY_EDITOR
-       AndroidJavaClass activityClass;
-        AndroidJavaObject activity, packageManager;
-        AndroidJavaObject launch;
-
-
-        activityClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-        activity = activityClass.GetStatic<AndroidJavaObject>("currentActivity");
-        packageManager = activity.Call<AndroidJavaObject>("getPackageManager");
-        launch = packageManager.Call<AndroidJavaObject>("getLaunchIntentForPackage", package);
-        activity.Call("startActivity", launch);
 #endif
     }
 }
