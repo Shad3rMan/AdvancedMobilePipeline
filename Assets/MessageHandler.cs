@@ -25,6 +25,7 @@ public static class MessageHandler
 
         public void onCloseRequested()
         {
+            Debug.Log("onCloseRequested");
         }
     }
 

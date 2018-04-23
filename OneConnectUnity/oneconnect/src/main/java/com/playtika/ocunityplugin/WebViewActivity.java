@@ -21,6 +21,6 @@ public class WebViewActivity extends Activity {
 
     public void OnCloseClick(View view)
     {
-        UnityBridge.SendMessageToUnity("Message", "Data");
+        UnityBridge.OnClose();
     }
 }
