@@ -17,7 +17,7 @@ public final class UnityBridge {
 
     public static void init(Activity activity) {
         Log.d("Unity", "init");
-        Intent myIntent = new Intent(activity, LoginActivity.class);
+        Intent myIntent = new Intent(activity, WebViewActivity.class);
         activity.startActivity(myIntent);
         //AddView(activity);
     }
