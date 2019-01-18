@@ -270,7 +270,7 @@ namespace MobilePipeline.Pipeline
                 }
 
                 var tileOffsetX = tileIndex % split;
-                var tileOffsetY = (float) tileIndex / split;
+                var tileOffsetY = tileIndex / split;
                 tileViewport.x = tileOffsetX * tileSize;
                 tileViewport.y = tileOffsetY * tileSize;
                 if (split > 1)
@@ -298,8 +298,7 @@ namespace MobilePipeline.Pipeline
                 var scaleOffset = Matrix4x4.identity;
                 scaleOffset.m00 = scaleOffset.m11 = scaleOffset.m22 = 0.5f;
                 scaleOffset.m03 = scaleOffset.m13 = scaleOffset.m23 = 0.5f;
-                _worldToShadowMatrices[i] =
-                    scaleOffset * (projectionMatrix * viewMatrix);
+                _worldToShadowMatrices[i] = scaleOffset * (projectionMatrix * viewMatrix);
 
                 if (split > 1)
                 {

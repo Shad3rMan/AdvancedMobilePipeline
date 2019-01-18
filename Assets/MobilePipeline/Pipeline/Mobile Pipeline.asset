@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67ab1f32465c4f5449fc09b2fe566e4e, type: 3}
   m_Name: Mobile Pipeline
   m_EditorClassIdentifier: 
-  shadowMapSize: 512
-  _dynamicBatching: 0
+  _shadowMapSize: 1024
+  _dynamicBatching: 1
   _instancing: 1

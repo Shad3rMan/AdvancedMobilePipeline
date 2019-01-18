@@ -78,7 +78,6 @@ float3 DiffuseLight (int index, float3 normal, float3 worldPos, float shadowAtte
 	
 	float distanceSqr = max(dot(lightVector, lightVector), 0.00001);
 	diffuse *= shadowAttenuation * spotFade * rangeFade / distanceSqr;
-	//diffuse *= (shadowAttenuation + rangeFade * spotFade) / distanceSqr;
 	
 	return diffuse * lightColor;
 }
