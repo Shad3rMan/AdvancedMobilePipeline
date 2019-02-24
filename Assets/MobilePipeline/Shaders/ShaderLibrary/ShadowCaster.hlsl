@@ -1,7 +1,7 @@
 #ifndef SHADOWCASTER
 #define SHADOWCASTER
 
-#include "CoreRP/ShaderLibrary/Common.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
 
 CBUFFER_START(UnityPerFrame)
 	float4x4 unity_MatrixVP;
@@ -17,7 +17,7 @@ CBUFFER_END
 
 #define UNITY_MATRIX_M unity_ObjectToWorld
 
-#include "CoreRP/ShaderLibrary/UnityInstancing.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 
 struct VertexInput {
 	float4 pos : POSITION;
