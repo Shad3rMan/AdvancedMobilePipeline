@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Mobile Pipeline
   m_EditorClassIdentifier: 
   _shadowMapSize: 1024
-  _dynamicBatching: 1
+  _dynamicBatching: 0
   _instancing: 1
