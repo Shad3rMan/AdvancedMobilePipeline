@@ -6,12 +6,12 @@ Shader "MobilePipeline/Lit Transparent"
     }
     SubShader
     {
-        Tags { "RenderType"="Transparent" "RenderQueue"="Transparent"}
+        Tags { "RenderType"="Transparent" "Queue"="Transparent"}
         LOD 100
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
         ZTest LEqual
-
+        
         Pass
         {
             HLSLPROGRAM
@@ -20,7 +20,6 @@ Shader "MobilePipeline/Lit Transparent"
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling
             
-            #pragma target 3.5
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
             

@@ -6,7 +6,7 @@
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" "RenderQueue"="Geometry"}
+        Tags { "RenderType"="Opaque" "Queue"="Geometry"}
         LOD 100
         ZWrite On
         ZTest LEqual
@@ -19,7 +19,6 @@
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling
             
-            #pragma target 3.5
             #pragma vertex UnlitPassVertex
             #pragma fragment UnlitPassFragment
             

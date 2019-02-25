@@ -20,7 +20,6 @@ Shader "MobilePipeline/Unlit Transparent"
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling
             
-            #pragma target 3.5
             #pragma vertex UnlitPassVertex
             #pragma fragment UnlitPassFragment
             
