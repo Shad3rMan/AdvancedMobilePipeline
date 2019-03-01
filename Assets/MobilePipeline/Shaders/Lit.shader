@@ -3,13 +3,20 @@
     Properties
     {
         _Color ("Color", Color) = (1, 1, 1, 1)
+        _MainTex("Albedo & Alpha", 2D) = "white" {}
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend", Float) = 1
+		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Dst Blend", Float) = 0
+		[Enum(Off, 0, On, 1)]                   _ZWrite ("Z Write", Float) = 1
     }
     SubShader
     {
         Tags { "RenderType"="Opaque" "Queue"="Geometry"}
         LOD 100
-        ZWrite On
         ZTest LEqual
+        Cull [_Cull]
+        Blend [_SrcBlend] [_DstBlend]
+        ZWrite [_ZWrite]
 
         Pass
         {

@@ -3,6 +3,10 @@
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
 
+CBUFFER_START(UnityPerMaterial)
+	float4 _MainTex_ST;
+CBUFFER_END
+
 CBUFFER_START(UnityPerFrame)
 	float4x4 unity_MatrixVP;
 CBUFFER_END
@@ -22,6 +26,9 @@ CBUFFER_START(_LightBuffer)
 	float4 _VisibleLightAttenuations[MAX_VISIBLE_LIGHTS];
 	float4 _VisibleLightSpotDirections[MAX_VISIBLE_LIGHTS];
 CBUFFER_END
+
+TEXTURE2D(_MainTex);
+SAMPLER(sampler_MainTex);
 
 float Lambert(float3 normal, float3 lightDirection)
 {
@@ -67,15 +74,17 @@ struct VertexInput
 {
 	float4 pos : POSITION;
 	float3 normal : NORMAL;
+	float2 uv : TEXCOORD0;
 	UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 struct VertexOutput 
 {
 	float4 clipPos : SV_POSITION;
-	float3 normal : NORMAL;
-	float3 worldPos : TEXCOORD0;
-	float3 vertexLighting : TEXCOORD1;
+	float3 normal : TEXCOORD0;
+	float2 uv : TEXCOORD1;
+	float3 worldPos : TEXCOORD2;
+	float3 vertexLighting : TEXCOORD3;
 	UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -84,11 +93,13 @@ VertexOutput LitPassVertex (VertexInput input)
 	VertexOutput output;
 	UNITY_SETUP_INSTANCE_ID(input);
 	UNITY_TRANSFER_INSTANCE_ID(input, output);
+	
 	float4 worldPos = mul(UNITY_MATRIX_M, float4(input.pos.xyz, 1.0));
 	output.clipPos = mul(unity_MatrixVP, worldPos);
 	output.normal = mul((float3x3)UNITY_MATRIX_M, input.normal);
 	output.worldPos = worldPos.xyz;
-	
+    output.uv = TRANSFORM_TEX(input.uv, _MainTex);
+
 	output.vertexLighting = 0;
 	for (int i = 4; i < min(unity_LightIndicesOffsetAndCount.y, 8); i++) {
 		int lightIndex = unity_4LightIndices1[i - 4];
@@ -98,11 +109,13 @@ VertexOutput LitPassVertex (VertexInput input)
 	return output;
 }
 
-float4 LitPassFragment (VertexOutput input) : SV_TARGET 
+float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_FACE_SEMANTIC) : SV_TARGET 
 {
 	UNITY_SETUP_INSTANCE_ID(input);
 	input.normal = normalize(input.normal);
-	float4 albedo = UNITY_ACCESS_INSTANCED_PROP(PerInstance, _Color);
+	input.normal = IS_FRONT_VFACE(isFrontFace, input.normal, -input.normal);
+	float4 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+	albedo *= UNITY_ACCESS_INSTANCED_PROP(PerInstance, _Color);
 	
 	float3 diffuseLight = input.vertexLighting;
 	for (int i = 0; i < min(unity_LightIndicesOffsetAndCount.y, 4); i++)

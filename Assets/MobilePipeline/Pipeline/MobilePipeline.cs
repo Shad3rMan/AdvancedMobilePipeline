@@ -103,13 +103,13 @@ namespace MobilePipeline.Pipeline
                 drawSettings.rendererConfiguration = RendererConfiguration.PerObjectLightIndices8;
             }
 
-            //context.DrawSkybox(camera);
-
             var filterSettings = new FilterRenderersSettings(true);
 
             drawSettings.sorting.flags = SortFlags.CommonOpaque;
             filterSettings.renderQueueRange = RenderQueueRange.opaque;
             context.DrawRenderers(_cullResults.visibleRenderers, ref drawSettings, filterSettings);
+
+            context.DrawSkybox(camera);
 
             drawSettings.sorting.flags = SortFlags.CommonTransparent;
             filterSettings.renderQueueRange = RenderQueueRange.transparent;
