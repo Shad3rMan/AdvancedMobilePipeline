@@ -109,7 +109,7 @@ VertexOutput LitPassVertex (VertexInput input)
 	return output;
 }
 
-float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_FACE_SEMANTIC) : SV_TARGET 
+float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_FACE_SEMANTIC) : SV_TARGET
 {
 	UNITY_SETUP_INSTANCE_ID(input);
 	input.normal = normalize(input.normal);
@@ -125,7 +125,6 @@ float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_
 	}
 	
 	float3 color = diffuseLight * albedo;
-	
 	return float4(color, albedo.a);
 }
 #endif //LIT_HLSL
