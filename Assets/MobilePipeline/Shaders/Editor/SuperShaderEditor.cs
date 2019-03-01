@@ -17,10 +17,6 @@ namespace MobilePipeline.Shaders.Editor
         private MaterialProperty _blendMode;
         private MaterialProperty _albedoMap;
         private MaterialProperty _albedoColor;
-        private static readonly int Lit = Shader.PropertyToID("_Lit");
-        private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
-        private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
-        private static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
         {
@@ -32,7 +28,7 @@ namespace MobilePipeline.Shaders.Editor
             {
                 EditorGUI.BeginChangeCheck();
                 {
-                    SetupMaterialWithBlendMode(material, (BlendMode) material.GetFloat(Lit));
+                    SetupMaterialWithBlendMode(material, (BlendMode) material.GetFloat(Styles.Lit));
                     BlendModePopup();
                     DoAlbedoArea(material);
                 }
@@ -49,7 +45,7 @@ namespace MobilePipeline.Shaders.Editor
 
         private void DoAlbedoArea(Material material)
         {
-            _materialEditor.TexturePropertySingleLine(Styles.albedoText, _albedoMap, _albedoColor);
+            _materialEditor.TexturePropertySingleLine(Styles.AlbedoText, _albedoMap, _albedoColor);
         }
 
         private void BlendModePopup()
@@ -58,7 +54,7 @@ namespace MobilePipeline.Shaders.Editor
             var mode = (BlendMode)_blendMode.floatValue;
 
             EditorGUI.BeginChangeCheck();
-            mode = (BlendMode)EditorGUILayout.Popup(Styles.renderingMode, (int)mode, Styles.blendNames);
+            mode = (BlendMode)EditorGUILayout.Popup(Styles.RenderingMode, (int)mode, Styles.BlendNames);
             if (EditorGUI.EndChangeCheck())
             {
                 _materialEditor.RegisterPropertyChangeUndo("Rendering Mode");
@@ -81,16 +77,16 @@ namespace MobilePipeline.Shaders.Editor
             {
                 case BlendMode.Opaque:
                     material.SetOverrideTag("RenderType", "Geometry");
-                    material.SetInt(SrcBlend, (int)UnityEngine.Rendering.BlendMode.One);
-                    material.SetInt(DstBlend, (int)UnityEngine.Rendering.BlendMode.Zero);
-                    material.SetInt(ZWrite, 1);
+                    material.SetInt(Styles.SrcBlend, (int)UnityEngine.Rendering.BlendMode.One);
+                    material.SetInt(Styles.DstBlend, (int)UnityEngine.Rendering.BlendMode.Zero);
+                    material.SetInt(Styles.ZWrite, 1);
                     material.renderQueue = (int)RenderQueue.Geometry;
                     break;
                 case BlendMode.Transparent:
                     material.SetOverrideTag("RenderType", "Transparent");
-                    material.SetInt(SrcBlend, (int)UnityEngine.Rendering.BlendMode.One);
-                    material.SetInt(DstBlend, (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                    material.SetInt(ZWrite, 1);
+                    material.SetInt(Styles.SrcBlend, (int)UnityEngine.Rendering.BlendMode.One);
+                    material.SetInt(Styles.DstBlend, (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                    material.SetInt(Styles.ZWrite, 1);
                     material.renderQueue = (int)RenderQueue.Transparent;
                     break;
             }
@@ -98,9 +94,13 @@ namespace MobilePipeline.Shaders.Editor
         
         private static class Styles
         {
-            public static GUIContent albedoText = EditorGUIUtility.TrTextContent("Albedo", "Albedo (RGB) and Transparency (A)");
-            public static string renderingMode = "Rendering Mode";
-            public static readonly string[] blendNames = Enum.GetNames(typeof(BlendMode));
+            public static readonly int Lit = Shader.PropertyToID("_Lit");
+            public static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
+            public static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
+            public static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
+            public static readonly GUIContent AlbedoText = EditorGUIUtility.TrTextContent("Albedo", "Albedo (RGB) and Transparency (A)");
+            public static readonly string[] BlendNames = Enum.GetNames(typeof(BlendMode));
+            public const string RenderingMode = "Rendering Mode";
         }
     }
 }
