@@ -16,13 +16,13 @@ namespace MobilePipeline.Shaders.Editor
         private MaterialEditor _materialEditor;
         private MaterialProperty _drawMode;
         private MaterialProperty _albedoMap;
-        private MaterialProperty _albedoColor;
         private MaterialProperty _cullMode;
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
         {
             FindProperties(props);
             _materialEditor = materialEditor;
+            
             var material = materialEditor.target as Material;
             if (material != null)
             {
@@ -31,7 +31,7 @@ namespace MobilePipeline.Shaders.Editor
                     SetupMaterialWithBlendMode(material, (DrawMode) material.GetFloat(Styles.DrawMode));
                     BlendModePopup();
                     CullModePopup();
-                    DoAlbedoArea(material);
+                    DoAlbedoArea();
                 }
                 if (EditorGUI.EndChangeCheck())
                 {
@@ -43,11 +43,9 @@ namespace MobilePipeline.Shaders.Editor
             _materialEditor.DoubleSidedGIField();
         }
 
-        private void DoAlbedoArea(Material material)
+        private void DoAlbedoArea()
         {
             _materialEditor.TextureProperty(_albedoMap, "Albedo");
-            _materialEditor.ColorProperty(_albedoColor, "Color");
-            _materialEditor.TexturePropertySingleLine(Styles.AlbedoText, _albedoMap, _albedoColor);
         }
 
         private void BlendModePopup()
@@ -86,7 +84,6 @@ namespace MobilePipeline.Shaders.Editor
         {
             _drawMode = FindProperty("_DrawMode", props);
             _albedoMap = FindProperty("_MainTex", props);
-            _albedoColor = FindProperty("_Color", props);
             _cullMode = FindProperty("_CullMode", props);
         }
 
@@ -117,9 +114,6 @@ namespace MobilePipeline.Shaders.Editor
             public static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
             public static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
             public static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
-
-            public static readonly GUIContent AlbedoText =
-                EditorGUIUtility.TrTextContent("Albedo", "Albedo (RGB) and Transparency (A)");
 
             public static readonly string[] DrawModeNames = Enum.GetNames(typeof(DrawMode));
             public static readonly string[] CullNames = Enum.GetNames(typeof(CullMode));
