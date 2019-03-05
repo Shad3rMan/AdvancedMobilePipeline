@@ -7,14 +7,14 @@ namespace MobilePipeline.Shaders.Editor
 {
     public class SuperShaderEditor : ShaderGUI
     {
-        private enum BlendMode
+        private enum DrawMode
         {
             Opaque,
             Transparent
         }
 
         private MaterialEditor _materialEditor;
-        private MaterialProperty _blendMode;
+        private MaterialProperty _drawMode;
         private MaterialProperty _albedoMap;
         private MaterialProperty _albedoColor;
         private MaterialProperty _cullMode;
@@ -28,7 +28,7 @@ namespace MobilePipeline.Shaders.Editor
             {
                 EditorGUI.BeginChangeCheck();
                 {
-                    SetupMaterialWithBlendMode(material, (BlendMode) material.GetFloat(Styles.Lit));
+                    SetupMaterialWithBlendMode(material, (DrawMode) material.GetFloat(Styles.DrawMode));
                     BlendModePopup();
                     CullModePopup();
                     DoAlbedoArea(material);
@@ -45,20 +45,22 @@ namespace MobilePipeline.Shaders.Editor
 
         private void DoAlbedoArea(Material material)
         {
+            _materialEditor.TextureProperty(_albedoMap, "Albedo");
+            _materialEditor.ColorProperty(_albedoColor, "Color");
             _materialEditor.TexturePropertySingleLine(Styles.AlbedoText, _albedoMap, _albedoColor);
         }
 
         private void BlendModePopup()
         {
-            EditorGUI.showMixedValue = _blendMode.hasMixedValue;
-            var mode = (BlendMode) _blendMode.floatValue;
+            EditorGUI.showMixedValue = _drawMode.hasMixedValue;
+            var mode = (DrawMode) _drawMode.floatValue;
 
             EditorGUI.BeginChangeCheck();
-            mode = (BlendMode) EditorGUILayout.Popup(Styles.RenderingMode, (int) mode, Styles.BlendNames);
+            mode = (DrawMode) EditorGUILayout.Popup(Styles.DrawModeText, (int) mode, Styles.DrawModeNames);
             if (EditorGUI.EndChangeCheck())
             {
-                _materialEditor.RegisterPropertyChangeUndo("Rendering Mode");
-                _blendMode.floatValue = (float) mode;
+                _materialEditor.RegisterPropertyChangeUndo("Draw Mode");
+                _drawMode.floatValue = (float) mode;
             }
 
             EditorGUI.showMixedValue = false;
@@ -70,7 +72,7 @@ namespace MobilePipeline.Shaders.Editor
             var mode = (CullMode) _cullMode.floatValue;
 
             EditorGUI.BeginChangeCheck();
-            mode = (CullMode) EditorGUILayout.Popup(Styles.CullMode, (int) mode, Styles.CullNames);
+            mode = (CullMode) EditorGUILayout.Popup(Styles.CullModeText, (int) mode, Styles.CullNames);
             if (EditorGUI.EndChangeCheck())
             {
                 _materialEditor.RegisterPropertyChangeUndo("Cull Mode");
@@ -82,27 +84,27 @@ namespace MobilePipeline.Shaders.Editor
 
         private void FindProperties(MaterialProperty[] props)
         {
-            _blendMode = FindProperty("_Lit", props);
+            _drawMode = FindProperty("_DrawMode", props);
             _albedoMap = FindProperty("_MainTex", props);
             _albedoColor = FindProperty("_Color", props);
-            _cullMode = FindProperty("_Cull", props);
+            _cullMode = FindProperty("_CullMode", props);
         }
 
-        private static void SetupMaterialWithBlendMode(Material material, BlendMode blendMode)
+        private static void SetupMaterialWithBlendMode(Material material, DrawMode drawMode)
         {
-            switch (blendMode)
+            switch (drawMode)
             {
-                case BlendMode.Opaque:
+                case DrawMode.Opaque:
                     material.SetOverrideTag("RenderType", "Geometry");
-                    material.SetInt(Styles.SrcBlend, (int) UnityEngine.Rendering.BlendMode.One);
-                    material.SetInt(Styles.DstBlend, (int) UnityEngine.Rendering.BlendMode.Zero);
+                    material.SetInt(Styles.SrcBlend, (int) BlendMode.One);
+                    material.SetInt(Styles.DstBlend, (int) BlendMode.Zero);
                     material.SetInt(Styles.ZWrite, 1);
                     material.renderQueue = (int) RenderQueue.Geometry;
                     break;
-                case BlendMode.Transparent:
+                case DrawMode.Transparent:
                     material.SetOverrideTag("RenderType", "Transparent");
-                    material.SetInt(Styles.SrcBlend, (int) UnityEngine.Rendering.BlendMode.One);
-                    material.SetInt(Styles.DstBlend, (int) UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                    material.SetInt(Styles.SrcBlend, (int) BlendMode.One);
+                    material.SetInt(Styles.DstBlend, (int) BlendMode.OneMinusSrcAlpha);
                     material.SetInt(Styles.ZWrite, 1);
                     material.renderQueue = (int) RenderQueue.Transparent;
                     break;
@@ -111,8 +113,7 @@ namespace MobilePipeline.Shaders.Editor
 
         private static class Styles
         {
-            public static readonly int Cull = Shader.PropertyToID("_Cull");
-            public static readonly int Lit = Shader.PropertyToID("_Lit");
+            public static readonly int DrawMode = Shader.PropertyToID("_DrawMode");
             public static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
             public static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
             public static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
@@ -120,10 +121,10 @@ namespace MobilePipeline.Shaders.Editor
             public static readonly GUIContent AlbedoText =
                 EditorGUIUtility.TrTextContent("Albedo", "Albedo (RGB) and Transparency (A)");
 
-            public static readonly string[] BlendNames = Enum.GetNames(typeof(BlendMode));
+            public static readonly string[] DrawModeNames = Enum.GetNames(typeof(DrawMode));
             public static readonly string[] CullNames = Enum.GetNames(typeof(CullMode));
-            public const string RenderingMode = "Rendering Mode";
-            public const string CullMode = "Cull Mode";
+            public const string DrawModeText = "Rendering Mode";
+            public const string CullModeText = "Cull Mode";
         }
     }
 }

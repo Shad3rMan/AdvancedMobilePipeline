@@ -2,17 +2,20 @@
 {
     Properties
     {
-        [HideInInspector]_Color ("Color", Color) = (1, 1, 1, 1)
-        [HideInInspector]_MainTex("Albedo & Alpha", 2D) = "white" {}
-        [HideInInspector] _Cull ("Cull", Float) = 2
-		[HideInInspector] _Lit ("Lit", Float) = 1
+        _Color ("Color", Color) = (1, 1, 1, 1)
+        _MainTex("Albedo & Alpha", 2D) = "white" {}
+        [Enum(UnityEngine.Rendering.CullMode)] _CullMode ("Cull", Float) = 2
+ 		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend", Float) = 1
+		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Dst Blend", Float) = 0
+		[Enum(Off, 0, On, 1)] _ZWrite ("Z Write", Float) = 1
+        [HideInInspector] _DrawMode ("Draw Mode", Float) = 1
     }
     SubShader
     {
         Tags { "RenderType"="Opaque" "Queue"="Geometry"}
         LOD 100
         ZTest LEqual
-        Cull [_Cull]
+        Cull [_CullMode]
         Blend [_SrcBlend] [_DstBlend]
         ZWrite [_ZWrite]
 
