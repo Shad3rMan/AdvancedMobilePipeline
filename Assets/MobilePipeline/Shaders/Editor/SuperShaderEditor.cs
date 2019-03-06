@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Object = UnityEngine.Object;
 
 namespace MobilePipeline.Shaders.Editor
 {
@@ -14,158 +13,66 @@ namespace MobilePipeline.Shaders.Editor
             Transparent
         }
 
-        private MaterialEditor _materialEditor;
-        private MaterialProperty _drawMode;
-        private MaterialProperty _albedoMap;
-        private MaterialProperty _cullMode;
-        private MaterialProperty _lit;
-        private object[] _materials;
+        private Object[] _materials;
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
         {
-            //base.OnGUI(materialEditor, props);
-            FindProperties(props);
-            _materialEditor = materialEditor;
-
-            _materials = materialEditor.targets ;
+            _materials = materialEditor.targets;
             if (_materials != null)
             {
-                EditorGUI.BeginChangeCheck();
-                {
-                    SetupMaterialWithBlendMode(_materials);
-                    LitPopup();
-                    DrawModePopup();
-                    CullModePopup();
-                    DoAlbedoArea();
-                }
-                if (EditorGUI.EndChangeCheck())
-                {
-                }
+                base.OnGUI(materialEditor, props);
+                DrawPresetSelector();
             }
-
-            EditorGUILayout.Space();
-            _materialEditor.EnableInstancingField();
-            _materialEditor.DoubleSidedGIField();
         }
 
-        private void DoAlbedoArea()
+        private void DrawPresetSelector()
         {
-            _materialEditor.TextureProperty(_albedoMap, "Albedo");
-        }
-
-        private void DrawModePopup()
-        {
-            EditorGUI.showMixedValue = _drawMode.hasMixedValue;
-            var mode = (DrawMode) _drawMode.floatValue;
-
-            EditorGUI.BeginChangeCheck();
-            mode = (DrawMode) EditorGUILayout.Popup(Styles.DrawModeText, (int) mode, Styles.DrawModeNames);
-            if (EditorGUI.EndChangeCheck())
+            GUILayout.BeginVertical(GUI.skin.box);
+            EditorGUILayout.LabelField("Preset Selection");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Opaque"))
             {
-                _materialEditor.RegisterPropertyChangeUndo("Draw Mode");
-                _drawMode.floatValue = (float) mode;
+                ApplyDrawMode(DrawMode.Opaque);
             }
-
-            EditorGUI.showMixedValue = false;
-        }
-
-        private void LitPopup()
-        {
-            EditorGUI.showMixedValue = _lit.hasMixedValue;
-            var mode = _lit.floatValue > 0;
-
-            EditorGUI.BeginChangeCheck();
-            mode = EditorGUILayout.Toggle(Styles.LitText, mode);
-            if (EditorGUI.EndChangeCheck())
+            
+            if (GUILayout.Button("Transparent"))
             {
-                _materialEditor.RegisterPropertyChangeUndo("Lit");
-                _lit.floatValue = mode ? 1 : 0;
-                SetKeywordEnabled("_LIT", mode);
+                ApplyDrawMode(DrawMode.Transparent);
             }
-
-            EditorGUI.showMixedValue = false;
+            
+            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
         }
 
-        private void CullModePopup()
+        private void ApplyDrawMode(DrawMode mode)
         {
-            EditorGUI.showMixedValue = _cullMode.hasMixedValue;
-            var mode = (CullMode) _cullMode.floatValue;
-
-            EditorGUI.BeginChangeCheck();
-            mode = (CullMode) EditorGUILayout.Popup(Styles.CullModeText, (int) mode, Styles.CullNames);
-            if (EditorGUI.EndChangeCheck())
+            foreach (Material material in _materials)
             {
-                _materialEditor.RegisterPropertyChangeUndo("Cull Mode");
-                _cullMode.floatValue = (float) mode;
-            }
-
-            EditorGUI.showMixedValue = false;
-        }
-
-        private void FindProperties(MaterialProperty[] props)
-        {
-            _drawMode = FindProperty("_DrawMode", props);
-            _albedoMap = FindProperty("_MainTex", props);
-            _cullMode = FindProperty("_CullMode", props);
-            _lit = FindProperty("_Lit", props);
-        }
-
-        private static void SetupMaterialWithBlendMode(IEnumerable<object> materials)
-        {
-            foreach (Material material in materials)
-            {
-                var drawMode = (DrawMode) material.GetFloat(Styles.DrawMode);
-                switch (drawMode)
+                switch (mode)
                 {
                     case DrawMode.Opaque:
                         material.SetOverrideTag("RenderType", "Geometry");
-                        material.SetInt(Styles.SrcBlend, (int) BlendMode.One);
-                        material.SetInt(Styles.DstBlend, (int) BlendMode.Zero);
-                        material.SetInt(Styles.ZWrite, 1);
+                        material.SetInt(Properties.SrcBlend, (int) BlendMode.One);
+                        material.SetInt(Properties.DstBlend, (int) BlendMode.Zero);
+                        material.SetInt(Properties.ZWrite, 1);
                         material.renderQueue = (int) RenderQueue.Geometry;
                         break;
                     case DrawMode.Transparent:
                         material.SetOverrideTag("RenderType", "Transparent");
-                        material.SetInt(Styles.SrcBlend, (int) BlendMode.One);
-                        material.SetInt(Styles.DstBlend, (int) BlendMode.OneMinusSrcAlpha);
-                        material.SetInt(Styles.ZWrite, 1);
+                        material.SetInt(Properties.SrcBlend, (int) BlendMode.SrcAlpha);
+                        material.SetInt(Properties.DstBlend, (int) BlendMode.OneMinusSrcAlpha);
+                        material.SetInt(Properties.ZWrite, 0);
                         material.renderQueue = (int) RenderQueue.Transparent;
                         break;
                 }
             }
         }
 
-        private void SetKeywordEnabled(string keyword, bool enabled)
+        private static class Properties
         {
-            if (enabled)
-            {
-                foreach (Material m in _materials)
-                {
-                    m.EnableKeyword(keyword);
-                }
-            }
-            else
-            {
-                foreach (Material m in _materials)
-                {
-                    m.DisableKeyword(keyword);
-                }
-            }
-        }
-
-        private static class Styles
-        {
-            public static readonly int DrawMode = Shader.PropertyToID("_DrawMode");
             public static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
             public static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
             public static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
-            public static readonly int Lit = Shader.PropertyToID("_Lit");
-
-            public static readonly string[] DrawModeNames = Enum.GetNames(typeof(DrawMode));
-            public static readonly string[] CullNames = Enum.GetNames(typeof(CullMode));
-            public const string DrawModeText = "Rendering Mode";
-            public const string CullModeText = "Cull Mode";
-            public const string LitText = "Lit";
         }
     }
 }
