@@ -5,6 +5,8 @@
 
 CBUFFER_START(UnityPerMaterial)
     float4 _MainTex_ST;
+    half _Specular;
+    half _Gloss;
 CBUFFER_END
 
 CBUFFER_START(UnityPerFrame)
@@ -15,6 +17,7 @@ CBUFFER_START(UnityPerDraw)
     float4x4 unity_ObjectToWorld;
     float4 unity_LightIndicesOffsetAndCount;
     float4 unity_4LightIndices0, unity_4LightIndices1;
+    float3 _WorldSpaceCameraPos;
 CBUFFER_END
 
 #define MAX_VISIBLE_LIGHTS 16
@@ -40,15 +43,35 @@ float HalfLambert(float3 normal, float3 lightDirection)
     return pow(saturate(dot(normal, lightDirection) * 0.5 + 0.5), 2);
 }
 
-float3 DiffuseLight (int index, float3 normal, float3 worldPos) {
+float BlinnPhong(float3 normal, float3 lightDirection, float3 worldPos, half specular, half gloss)
+{
+    float3 viewDir = _WorldSpaceCameraPos.xyz - worldPos;
+    half3 h = normalize (lightDirection + viewDir);
+    half diff = max (0, dot (normal, lightDirection));
+    float nh = max (0, dot (normal, h));
+    float spec = pow (nh, specular * 128.0) * gloss;
+
+    return diff + spec;
+}
+
+float3 DiffuseLight (int index, float3 normal, float3 worldPos)
+{
     float3 lightColor = _VisibleLightColors[index].rgb;
     float4 lightPositionOrDirection = _VisibleLightDirectionsOrPositions[index];
     float4 lightAttenuation = _VisibleLightAttenuations[index];
     float3 spotDirection = _VisibleLightSpotDirections[index].xyz;
-    
+
     float3 lightVector = lightPositionOrDirection.xyz - worldPos * lightPositionOrDirection.w;
     float3 lightDirection = normalize(lightVector);
-    float diffuse = HalfLambert(normal, lightVector);
+
+    float diffuse = 1;
+    #if defined(_HALF_LAMBERT)
+    diffuse = HalfLambert(normal, lightVector);
+    #elif defined(_LAMBERT)
+    diffuse = Lambert(normal, lightVector);
+    #elif defined(_BLINN_PHONG)
+    diffuse = BlinnPhong(normal, lightVector, worldPos, _Specular, _Gloss);
+    #endif
     
     float rangeFade = dot(lightVector, lightVector) * lightAttenuation.x;
     rangeFade = saturate(1.0 - pow(rangeFade, 2));
@@ -73,17 +96,19 @@ UNITY_INSTANCING_BUFFER_END(PerInstance)
 struct VertexInput
 {
     float4 pos : POSITION;
-    float3 normal : NORMAL;
     float2 uv : TEXCOORD0;
+#if defined(_LIT)
+    float3 normal : NORMAL;
+#endif
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 struct VertexOutput 
 {
     float4 clipPos : SV_POSITION;
-    float3 normal : TEXCOORD0;
-    float2 uv : TEXCOORD1;
+    float2 uv : TEXCOORD0;
 #if defined(_LIT)
+    float3 normal : TEXCOORD1;
     float3 worldPos : TEXCOORD2;
     float3 vertexLighting : TEXCOORD3;
 #endif
@@ -98,10 +123,10 @@ VertexOutput LitPassVertex (VertexInput input)
 
     float4 worldPos = mul(UNITY_MATRIX_M, float4(input.pos.xyz, 1.0));
     output.clipPos = mul(unity_MatrixVP, worldPos);
-    output.normal = mul((float3x3)UNITY_MATRIX_M, input.normal);
     output.uv = TRANSFORM_TEX(input.uv, _MainTex);
 
     #if defined(_LIT)
+    output.normal = mul((float3x3)UNITY_MATRIX_M, input.normal);
     output.worldPos = worldPos.xyz;
     output.vertexLighting = 0;
     for (int i = 4; i < min(unity_LightIndicesOffsetAndCount.y, 8); i++) {
@@ -119,7 +144,7 @@ float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_
     float4 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
     albedo *= UNITY_ACCESS_INSTANCED_PROP(PerInstance, _Color);
     
-    float3 color = albedo;
+    float3 color = albedo.rgb;
     
     #if defined(_LIT)
     input.normal = normalize(input.normal);

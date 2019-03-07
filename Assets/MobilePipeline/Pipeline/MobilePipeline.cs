@@ -14,6 +14,7 @@ namespace MobilePipeline.Pipeline
         private static readonly int LightAttenuationsId = Shader.PropertyToID("_VisibleLightAttenuations");
         private static readonly int LightSpotDirectionsId = Shader.PropertyToID("_VisibleLightSpotDirections");
         private static readonly int LightIndicesOffsetAndCountId = Shader.PropertyToID("unity_LightIndicesOffsetAndCount");
+        private static readonly int WorldSpaceCameraPosId = Shader.PropertyToID("_WorldSpaceCameraPos");
 
         private readonly Vector4[] _lightColors = new Vector4[MaxVisibleLights];
         private readonly Vector4[] _lightDirectionsOrPositions = new Vector4[MaxVisibleLights];
@@ -90,6 +91,7 @@ namespace MobilePipeline.Pipeline
             _cameraBuffer.SetGlobalVectorArray(LightDirectionsOrPositionsId, _lightDirectionsOrPositions);
             _cameraBuffer.SetGlobalVectorArray(LightAttenuationsId, _lightAttenuations);
             _cameraBuffer.SetGlobalVectorArray(LightSpotDirectionsId, _lightSpotDirections);
+            _cameraBuffer.SetGlobalVector(WorldSpaceCameraPosId, camera.transform.position);
             context.ExecuteCommandBuffer(_cameraBuffer);
             _cameraBuffer.Clear();
 
