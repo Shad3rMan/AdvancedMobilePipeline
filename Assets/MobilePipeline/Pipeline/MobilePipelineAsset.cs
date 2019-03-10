@@ -7,7 +7,7 @@ namespace MobilePipeline.Pipeline
     [CreateAssetMenu(menuName = "Rendering/Mobile Pipeline")]
     public class MobilePipelineAsset : RenderPipelineAsset
     {
-        private enum ShadowMapSize
+        public enum ShadowMapSizeTypes
         {
             _256 = 256,
             _512 = 512,
@@ -16,19 +16,51 @@ namespace MobilePipeline.Pipeline
             _4096 = 4096
         }
 
-        [FormerlySerializedAs("shadowMapSize")]
-        [SerializeField]
-        private ShadowMapSize _shadowMapSize = ShadowMapSize._1024;
+        [SerializeField] private ShadowMapSizeTypes _shadowMapSize = ShadowMapSizeTypes._1024;
 
-        [SerializeField]
-        private bool _dynamicBatching;
+        [SerializeField] private bool _dynamicBatching;
 
-        [SerializeField]
-        private bool _instancing;
+        [SerializeField] private bool _instancing;
+
+        [SerializeField] private bool _drawOpaque = true;
+
+        [SerializeField] private bool _drawTransparent = true;
+
+        [SerializeField] private bool _drawSkybox = true;
+
+        public ShadowMapSizeTypes ShadowMapSize
+        {
+            get { return _shadowMapSize; }
+        }
+
+        public bool DynamicBatching
+        {
+            get { return _dynamicBatching; }
+        }
+
+        public bool Instancing
+        {
+            get { return _instancing; }
+        }
+
+        public bool DrawSkybox
+        {
+            get { return _drawSkybox; }
+        }
+
+        public bool DrawTransparent
+        {
+            get { return _drawTransparent; }
+        }
+
+        public bool DrawOpaque
+        {
+            get { return _drawOpaque; }
+        }
 
         protected override IRenderPipeline InternalCreatePipeline()
         {
-            return new MobilePipeline(_dynamicBatching, _instancing, (int) _shadowMapSize);
+            return new MobilePipeline(this);
         }
     }
 }

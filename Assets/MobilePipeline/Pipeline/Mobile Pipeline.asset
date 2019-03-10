@@ -15,3 +15,6 @@ MonoBehaviour:
   _shadowMapSize: 1024
   _dynamicBatching: 0
   _instancing: 1
+  _drawOpaque: 1
+  _drawTransparent: 1
+  _drawSkybox: 1

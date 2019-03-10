@@ -7,6 +7,7 @@ namespace MobilePipeline.Pipeline
 {
     public class MobilePipeline : RenderPipeline
     {
+        private readonly MobilePipelineAsset _pipelineAsset;
         private const int MaxVisibleLights = 16;
 
         private static readonly int LightColorsId = Shader.PropertyToID("_VisibleLightColors");
@@ -29,15 +30,16 @@ namespace MobilePipeline.Pipeline
         private readonly DrawRendererFlags _drawFlags;
         private readonly CommandBuffer _cameraBuffer;
 
-        public MobilePipeline(bool dynamicBatching, bool instancing, int shadowMapSize)
+        public MobilePipeline(MobilePipelineAsset pipelineAsset)
         {
+            _pipelineAsset = pipelineAsset;
             _cameraBuffer = new CommandBuffer {name = "Render Camera"};
-            if (dynamicBatching)
+            if (_pipelineAsset.DynamicBatching)
             {
                 _drawFlags = DrawRendererFlags.EnableDynamicBatching;
             }
 
-            if (instancing)
+            if (_pipelineAsset.Instancing)
             {
                 _drawFlags |= DrawRendererFlags.EnableInstancing;
             }
@@ -107,15 +109,24 @@ namespace MobilePipeline.Pipeline
 
             var filterSettings = new FilterRenderersSettings(true);
 
-            drawSettings.sorting.flags = SortFlags.CommonOpaque;
-            filterSettings.renderQueueRange = RenderQueueRange.opaque;
-            context.DrawRenderers(_cullResults.visibleRenderers, ref drawSettings, filterSettings);
+            if(_pipelineAsset.DrawOpaque)
+            {
+                drawSettings.sorting.flags = SortFlags.CommonOpaque;
+                filterSettings.renderQueueRange = RenderQueueRange.opaque;
+                context.DrawRenderers(_cullResults.visibleRenderers, ref drawSettings, filterSettings);
+            }
+            
+            if(_pipelineAsset.DrawSkybox)
+            {
+                context.DrawSkybox(camera);
+            }
 
-            context.DrawSkybox(camera);
-
-            drawSettings.sorting.flags = SortFlags.CommonTransparent;
-            filterSettings.renderQueueRange = RenderQueueRange.transparent;
-            context.DrawRenderers(_cullResults.visibleRenderers, ref drawSettings, filterSettings);
+            if(_pipelineAsset.DrawTransparent)
+            {
+                drawSettings.sorting.flags = SortFlags.CommonTransparent;
+                filterSettings.renderQueueRange = RenderQueueRange.transparent;
+                context.DrawRenderers(_cullResults.visibleRenderers, ref drawSettings, filterSettings);
+            }
 
             DrawDefaultPipeline(context, camera);
 
