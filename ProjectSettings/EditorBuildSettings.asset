@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MobilePipelineTest.unity
     guid: d7c9a8b1610bd4f1695178852cac4683
+  - enabled: 0
+    path: Assets/Scenes/MobilePipelineTest 1.unity
+    guid: ac079b00eb03449278ac84352d7cde26
   m_configObjects: {}

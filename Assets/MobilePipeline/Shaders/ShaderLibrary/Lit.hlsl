@@ -5,6 +5,7 @@
 
 CBUFFER_START(UnityPerMaterial)
     float4 _MainTex_ST;
+    float4 _Lightmap_ST;
     half _Specular;
     half _Gloss;
 CBUFFER_END
@@ -76,11 +77,11 @@ float3 DiffuseLight (int index, float3 normal, float3 worldPos)
     float rangeFade = dot(lightVector, lightVector) * lightAttenuation.x;
     rangeFade = saturate(1.0 - pow(rangeFade, 2));
     rangeFade *= rangeFade;
-    
+
     float spotFade = dot(spotDirection, lightDirection);
     spotFade = saturate(spotFade * lightAttenuation.z + lightAttenuation.w);
     spotFade *= spotFade;
-    
+
     float distanceSqr = max(dot(lightVector, lightVector), 0.00001);
     diffuse *= spotFade * rangeFade / distanceSqr;
 
@@ -96,7 +97,7 @@ UNITY_INSTANCING_BUFFER_END(PerInstance)
 struct VertexInput
 {
     float4 pos : POSITION;
-    float2 uv : TEXCOORD0;
+    float2 uv1 : TEXCOORD0;
 #if defined(_LIT)
     float3 normal : NORMAL;
 #endif
@@ -106,11 +107,12 @@ struct VertexInput
 struct VertexOutput 
 {
     float4 clipPos : SV_POSITION;
-    float2 uv : TEXCOORD0;
+    float2 uv1 : TEXCOORD0;
+    float2 uv2 : TEXCOORD1;
 #if defined(_LIT)
-    float3 normal : TEXCOORD1;
-    float3 worldPos : TEXCOORD2;
-    float3 vertexLighting : TEXCOORD3;
+    float3 normal : TEXCOORD2;
+    float3 worldPos : TEXCOORD3;
+    float3 vertexLighting : TEXCOORD4;
 #endif
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
@@ -123,9 +125,9 @@ VertexOutput LitPassVertex (VertexInput input)
 
     float4 worldPos = mul(UNITY_MATRIX_M, float4(input.pos.xyz, 1.0));
     output.clipPos = mul(unity_MatrixVP, worldPos);
-    output.uv = TRANSFORM_TEX(input.uv, _MainTex);
+    output.uv1 = TRANSFORM_TEX(input.uv1, _MainTex);
 
-    #if defined(_LIT)
+#if defined(_LIT)
     output.normal = mul((float3x3)UNITY_MATRIX_M, input.normal);
     output.worldPos = worldPos.xyz;
     output.vertexLighting = 0;
@@ -133,7 +135,7 @@ VertexOutput LitPassVertex (VertexInput input)
         int lightIndex = unity_4LightIndices1[i - 4];
         output.vertexLighting += DiffuseLight(lightIndex, output.normal, output.worldPos);
     }
-    #endif
+#endif
 
     return output;
 }
@@ -141,12 +143,12 @@ VertexOutput LitPassVertex (VertexInput input)
 float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_FACE_SEMANTIC) : SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
-    float4 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+    float4 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv1);
     albedo *= UNITY_ACCESS_INSTANCED_PROP(PerInstance, _Color);
-    
+
     float3 color = albedo.rgb;
-    
-    #if defined(_LIT)
+
+#if defined(_LIT)
     input.normal = normalize(input.normal);
     input.normal = IS_FRONT_VFACE(isFrontFace, input.normal, -input.normal);
     float3 diffuseLight = input.vertexLighting;
@@ -156,9 +158,10 @@ float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_
         diffuseLight += DiffuseLight(lightIndex, input.normal, input.worldPos);
     }
     
+    diffuseLight *= albedo.a;
     color *= diffuseLight;
-    #endif
-    
+#endif
+
     return float4(color, albedo.a);
 }
 #endif //LIT_HLSL

@@ -38,6 +38,6 @@
             ENDHLSL
         }
     }
-    
+
     CustomEditor "MobilePipeline.Shaders.Editor.SuperShaderEditor"
 }

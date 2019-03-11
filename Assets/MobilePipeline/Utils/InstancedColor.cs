@@ -9,7 +9,7 @@ namespace MobilePipeline.Utils
 
         private static MaterialPropertyBlock _propertyBlock;
         private static readonly int ColorId = Shader.PropertyToID("_Color");
-        
+
         private void Awake()
         {
             var propertyBlock = new MaterialPropertyBlock();
@@ -17,10 +17,13 @@ namespace MobilePipeline.Utils
             GetComponent<MeshRenderer>().SetPropertyBlock(propertyBlock);
         }
 
-        private void OnValidate () {
-            if (_propertyBlock == null) {
+        private void OnValidate()
+        {
+            if (_propertyBlock == null)
+            {
                 _propertyBlock = new MaterialPropertyBlock();
             }
+
             _propertyBlock.SetColor(ColorId, _color);
             GetComponent<MeshRenderer>().SetPropertyBlock(_propertyBlock);
         }
