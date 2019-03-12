@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace MobilePipeline.Shaders.Editor
 {
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     public class SuperShaderEditor : ShaderGUI
     {
         private enum DrawMode
@@ -43,28 +43,110 @@ namespace MobilePipeline.Shaders.Editor
             _materials = materialEditor.targets;
             if (_materials != null)
             {
-                base.OnGUI(materialEditor, props);
-                DrawSpecular();
-                DrawGloss();
-                DrawLightingSelector();
                 DrawPresetSelector();
+                DrawBaseProperties(materialEditor, props);
+                DrawMainTextureBlock();
+                DrawLightBlock();
+            }
+        }
+
+        private void DrawBaseProperties(MaterialEditor materialEditor, MaterialProperty[] props)
+        {
+            GUILayout.BeginVertical(GUI.skin.box);
+            GUILayout.Label("Base properties");
+            base.OnGUI(materialEditor, props);
+            GUILayout.EndVertical();
+        }
+
+        private void DrawMainTextureBlock()
+        {
+            EditorGUI.BeginChangeCheck();
+            var hasTex = FindProperty("_HasMainTex", _properties);
+            var prop = FindProperty("_MainTex", _properties);
+            GUILayout.BeginVertical(GUI.skin.box);
+            hasTex.floatValue = EditorGUILayout.Toggle(prop.displayName + " enabled", hasTex.floatValue > 0) ? 1 : 0;
+            if (hasTex.floatValue > 0)
+            {
+                EditorGUILayout.Space();
+                _editor.TextureProperty(prop, prop.displayName);
+            }
+
+            GUILayout.EndVertical();
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                SetKeywordEnabled("_MAIN_TEX", hasTex.floatValue > 0);
+            }
+        }
+
+        private void DrawLightBlock()
+        {
+            GUILayout.BeginVertical(GUI.skin.box);
+            EditorGUI.BeginChangeCheck();
+            var lit = FindProperty("_HasLighting", _properties);
+            lit.floatValue = EditorGUILayout.Toggle(lit.displayName + " enabled", lit.floatValue > 0) ? 1 : 0;
+            if (lit.floatValue > 0)
+            {
+                EditorGUILayout.Space();
+                DrawLightingSelector();
+                DrawAmbientBlock();
+            }
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                SetKeywordEnabled("_LIT", lit.floatValue > 0);
+                if (lit.floatValue < 0.001f)
+                {
+                    SetKeywordEnabled("_LAMBERT", false);
+                    SetKeywordEnabled("_HALF_LAMBERT", false);
+                    SetKeywordEnabled("_BLINN_PHONG", false);
+                    SetKeywordEnabled("_AMBIENT", false);
+                }
+            }
+
+            GUILayout.EndVertical();
+        }
+
+        private void DrawAmbientBlock()
+        {
+            EditorGUI.BeginChangeCheck();
+            var hasAmbient = FindProperty("_HasAmbientTex", _properties);
+            var prop = FindProperty("_AmbientTex", _properties);
+            EditorGUILayout.Space();
+            hasAmbient.floatValue =
+                EditorGUILayout.Toggle(prop.displayName + " enabled", hasAmbient.floatValue > 0) ? 1 : 0;
+            if (hasAmbient.floatValue > 0)
+            {
+                GUILayout.BeginVertical(GUI.skin.box);
+                _editor.TextureProperty(prop, prop.displayName);
+                GUILayout.EndVertical();
+            }
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                SetKeywordEnabled("_AMBIENT", hasAmbient.floatValue > 0);
             }
         }
 
         private void DrawLightingSelector()
         {
-            var prop = FindProperty("_LightModel", _properties);
-            var mode = (LightMode)prop.floatValue;
             EditorGUI.BeginChangeCheck();
-            mode = (LightMode)EditorGUILayout.Popup("Light mode", (int)mode, Constants.LightModesArray);
+            var prop = FindProperty("_LightModel", _properties);
+            var mode = (LightMode) prop.floatValue;
+            mode = (LightMode) EditorGUILayout.Popup("Light mode", (int) mode, Constants.LightModesArray);
+
+            if (mode == LightMode.BlinnPhong)
+            {
+                DrawSpecular();
+                DrawGloss();
+            }
+
             if (EditorGUI.EndChangeCheck())
             {
                 _editor.RegisterPropertyChangeUndo("Light mode");
-                prop.floatValue = (float)mode;
+                prop.floatValue = (float) mode;
                 Lighting = mode;
             }
-
-            EditorGUI.showMixedValue = false;
         }
 
         private void DrawPresetSelector()
@@ -146,6 +228,20 @@ namespace MobilePipeline.Shaders.Editor
                 }
             }
         }
+
+        private bool GetKeywordEnabled(string keyword)
+        {
+            bool enabled = false;
+            foreach (Material m in _materials)
+            {
+                if (m.IsKeywordEnabled(keyword))
+                {
+                    enabled = true;
+                }
+            }
+
+            return enabled;
+        }
     }
-    #endif
+#endif
 }

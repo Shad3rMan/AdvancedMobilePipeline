@@ -5,7 +5,7 @@
 
 CBUFFER_START(UnityPerMaterial)
     float4 _MainTex_ST;
-    float4 _Lightmap_ST;
+    float4 _AmbientTex_ST;
     half _Specular;
     half _Gloss;
 CBUFFER_END
@@ -33,6 +33,9 @@ CBUFFER_END
 
 TEXTURE2D(_MainTex);
 SAMPLER(sampler_MainTex);
+
+TEXTURE2D(_AmbientTex);
+SAMPLER(sampler_AmbientTex);
 
 float Lambert(float3 normal, float3 lightDirection)
 {
@@ -72,8 +75,10 @@ float3 DiffuseLight (int index, float3 normal, float3 worldPos)
     diffuse = Lambert(normal, lightVector);
     #elif defined(_BLINN_PHONG)
     diffuse = BlinnPhong(normal, lightVector, worldPos, _Specular, _Gloss);
+    #else
+    diffuse = 1;
     #endif
-    
+
     float rangeFade = dot(lightVector, lightVector) * lightAttenuation.x;
     rangeFade = saturate(1.0 - pow(rangeFade, 2));
     rangeFade *= rangeFade;
@@ -107,8 +112,12 @@ struct VertexInput
 struct VertexOutput 
 {
     float4 clipPos : SV_POSITION;
+#if defined(_MAIN_TEX)
     float2 uv1 : TEXCOORD0;
+#endif
+#if defined(_AMBIENT)
     float2 uv2 : TEXCOORD1;
+#endif
 #if defined(_LIT)
     float3 normal : TEXCOORD2;
     float3 worldPos : TEXCOORD3;
@@ -125,7 +134,12 @@ VertexOutput LitPassVertex (VertexInput input)
 
     float4 worldPos = mul(UNITY_MATRIX_M, float4(input.pos.xyz, 1.0));
     output.clipPos = mul(unity_MatrixVP, worldPos);
+#if defined(_MAIN_TEX)
     output.uv1 = TRANSFORM_TEX(input.uv1, _MainTex);
+#endif
+#if defined(_AMBIENT)
+    output.uv2 = TRANSFORM_TEX(input.uv1, _AmbientTex);
+#endif
 
 #if defined(_LIT)
     output.normal = mul((float3x3)UNITY_MATRIX_M, input.normal);
@@ -143,7 +157,13 @@ VertexOutput LitPassVertex (VertexInput input)
 float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_FACE_SEMANTIC) : SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
-    float4 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv1);
+    float4 albedo = float4(1, 1, 1, 1);
+#if defined(_MAIN_TEX)
+    albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv1);
+#endif
+#if defined(_AMBIENT)
+    float4 ambient = SAMPLE_TEXTURE2D(_AmbientTex, sampler_AmbientTex, input.uv2);
+#endif
     albedo *= UNITY_ACCESS_INSTANCED_PROP(PerInstance, _Color);
 
     float3 color = albedo.rgb;
@@ -157,9 +177,12 @@ float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_
         int lightIndex = unity_4LightIndices0[i];
         diffuseLight += DiffuseLight(lightIndex, input.normal, input.worldPos);
     }
-    
+
     diffuseLight *= albedo.a;
     color *= diffuseLight;
+#if defined(_AMBIENT)
+    color *= ambient;
+#endif
 #endif
 
     return float4(color, albedo.a);

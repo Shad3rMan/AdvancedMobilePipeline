@@ -2,9 +2,13 @@
 {
     Properties
     {
-        [Toggle(_LIT)] _Lit ("Lit", Float) = 1
+        [HideInInspector] _HasLighting ("Lighting", Float) = 1
         [HideInInspector] _Color ("Color", Color) = (1, 1, 1, 1)
-        _MainTex("Albedo & Alpha", 2D) = "white" {}
+        [HideInInspector] _HasAmbientTex ("Ambient occlusion", Float) = 1
+        [HideInInspector] _AmbientTex("Ambient Occlusion", 2D) = "white" {}
+        
+        [HideInInspector] _HasMainTex ("HasMainTex", Float) = 1
+        [HideInInspector] _MainTex("Albedo & Alpha", 2D) = "white" {}
         [Enum(Off, 0, On, 1)] _ZWrite ("Z Write", Float) = 1
         [Enum(UnityEngine.Rendering.CullMode)] _CullMode ("Cull", Float) = 2
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend", Float) = 1
@@ -28,8 +32,10 @@
 
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling
-            #pragma shader_feature _LIT
-            #pragma shader_feature _LAMBERT _HALF_LAMBERT _BLINN_PHONG
+            #pragma shader_feature _ _LIT
+            #pragma shader_feature _MAIN_TEX
+            #pragma shader_feature _AMBIENT
+            #pragma shader_feature _ _LAMBERT _HALF_LAMBERT _BLINN_PHONG
 
             #include "ShaderLibrary/Lit.hlsl"
             #pragma vertex LitPassVertex

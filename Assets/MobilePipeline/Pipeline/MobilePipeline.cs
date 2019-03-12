@@ -16,7 +16,6 @@ namespace MobilePipeline.Pipeline
         private static readonly int LightSpotDirectionsId = Shader.PropertyToID("_VisibleLightSpotDirections");
         private static readonly int LightIndicesOffsetAndCountId = Shader.PropertyToID("unity_LightIndicesOffsetAndCount");
         private static readonly int WorldSpaceCameraPosId = Shader.PropertyToID("_WorldSpaceCameraPos");
-        private static readonly int LightmapId = Shader.PropertyToID("_LightMap");
 
         private readonly Vector4[] _lightColors = new Vector4[MaxVisibleLights];
         private readonly Vector4[] _lightDirectionsOrPositions = new Vector4[MaxVisibleLights];
