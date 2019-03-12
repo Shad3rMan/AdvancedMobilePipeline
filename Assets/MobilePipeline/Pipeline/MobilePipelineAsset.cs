@@ -8,10 +8,10 @@ namespace MobilePipeline.Pipeline
     public class MobilePipelineAsset : RenderPipelineAsset
     {
         [SerializeField]
-        private bool _dynamicBatching;
+        private bool _dynamicBatching = true;
 
         [SerializeField]
-        private bool _instancing;
+        private bool _instancing = true;
 
         [SerializeField]
         private bool _drawOpaque = true;
