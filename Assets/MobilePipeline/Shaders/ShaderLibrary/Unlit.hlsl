@@ -1,7 +1,7 @@
 ﻿#ifndef UNLIT_HLSL
 #define UNLIT_HLSL
 
-#include "CoreRP/ShaderLibrary/Common.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
 
 CBUFFER_START(UnityPerFrame)
 	float4x4 unity_MatrixVP;
@@ -13,7 +13,7 @@ CBUFFER_END
 
 #define UNITY_MATRIX_M unity_ObjectToWorld
 
-#include "CoreRP/ShaderLibrary/UnityInstancing.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 
 UNITY_INSTANCING_BUFFER_START(PerInstance)
 	UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
