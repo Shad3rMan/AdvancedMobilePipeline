@@ -6,8 +6,11 @@
 CBUFFER_START(UnityPerMaterial)
     float4 _MainTex_ST;
     float4 _AmbientTex_ST;
+    float4 _EmissionTex_ST;
     half _Specular;
     half _Gloss;
+    half _Emission;
+    half4 _EmissionColor;
 CBUFFER_END
 
 CBUFFER_START(UnityPerFrame)
@@ -36,6 +39,9 @@ SAMPLER(sampler_MainTex);
 
 TEXTURE2D(_AmbientTex);
 SAMPLER(sampler_AmbientTex);
+
+TEXTURE2D(_EmissionTex);
+SAMPLER(sampler_EmissionTex);
 
 float Lambert(float3 normal, float3 lightDirection)
 {
@@ -87,8 +93,8 @@ float3 DiffuseLight (int index, float3 normal, float3 worldPos)
     spotFade = saturate(spotFade * lightAttenuation.z + lightAttenuation.w);
     spotFade *= spotFade;
 
-    float distanceSqr = max(dot(lightVector, lightVector), 0.00001);
-    diffuse *= spotFade * rangeFade / distanceSqr;
+    //float distanceSqr = max(dot(lightVector, lightVector), 0.00001);
+    diffuse *= spotFade * rangeFade;// / distanceSqr;
 
     return diffuse * lightColor;
 }
@@ -115,7 +121,7 @@ struct VertexOutput
 #if defined(_MAIN_TEX)
     float2 uv1 : TEXCOORD0;
 #endif
-#if defined(_AMBIENT)
+#if defined(_AMBIENT) || defined(_EMISSION)
     float2 uv2 : TEXCOORD1;
 #endif
 #if defined(_LIT)
@@ -137,7 +143,7 @@ VertexOutput LitPassVertex (VertexInput input)
 #if defined(_MAIN_TEX)
     output.uv1 = TRANSFORM_TEX(input.uv1, _MainTex);
 #endif
-#if defined(_AMBIENT)
+#if defined(_AMBIENT) || defined(_EMISSION)
     output.uv2 = TRANSFORM_TEX(input.uv1, _AmbientTex);
 #endif
 
@@ -163,6 +169,9 @@ float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_
 #endif
 #if defined(_AMBIENT)
     float4 ambient = SAMPLE_TEXTURE2D(_AmbientTex, sampler_AmbientTex, input.uv2);
+#endif
+#if defined(_EMISSION)
+    albedo += SAMPLE_TEXTURE2D(_EmissionTex, sampler_EmissionTex, input.uv2) * _EmissionColor * _Emission;
 #endif
     albedo *= UNITY_ACCESS_INSTANCED_PROP(PerInstance, _Color);
 

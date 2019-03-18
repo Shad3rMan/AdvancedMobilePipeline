@@ -6,7 +6,10 @@
         [HideInInspector] _Color ("Color", Color) = (1, 1, 1, 1)
         [HideInInspector] _HasAmbientTex ("Ambient occlusion", Float) = 1
         [HideInInspector] _AmbientTex("Ambient Occlusion", 2D) = "white" {}
-        
+        [HideInInspector] _HasEmissionTex ("Emission", Float) = 1
+        [HideInInspector] _EmissionTex("Emission texture", 2D) = "white" {}
+        [HideInInspector] _Emission("Emission", Range(0, 3)) = 1
+        [HideInInspector] _EmissionColor("Emission color", Color) = (0, 0, 0, 0)
         [HideInInspector] _HasMainTex ("HasMainTex", Float) = 1
         [HideInInspector] _MainTex("Albedo & Alpha", 2D) = "white" {}
         [Enum(Off, 0, On, 1)] _ZWrite ("Z Write", Float) = 1
@@ -19,7 +22,7 @@
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" "Queue"="Geometry"}
+        Tags { "RenderType"="Opaque" "Queue"="Geometry" "LightMode"="Super"}
         LOD 100
         ZTest LEqual
         Cull [_CullMode]
@@ -35,6 +38,7 @@
             #pragma shader_feature _ _LIT
             #pragma shader_feature _MAIN_TEX
             #pragma shader_feature _AMBIENT
+            #pragma shader_feature _EMISSION
             #pragma shader_feature _ _LAMBERT _HALF_LAMBERT _BLINN_PHONG
 
             #include "ShaderLibrary/Lit.hlsl"

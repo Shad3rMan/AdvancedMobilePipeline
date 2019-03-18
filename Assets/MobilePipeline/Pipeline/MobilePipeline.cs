@@ -96,7 +96,7 @@ namespace MobilePipeline.Pipeline
             context.ExecuteCommandBuffer(_cameraBuffer);
             _cameraBuffer.Clear();
 
-            var drawSettings = new DrawRendererSettings(camera, new ShaderPassName("SRPDefaultUnlit"))
+            var drawSettings = new DrawRendererSettings(camera, new ShaderPassName("Super"))
             {
                 flags = _drawFlags
             };

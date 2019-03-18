@@ -47,6 +47,7 @@ namespace MobilePipeline.Shaders.Editor
                 DrawBaseProperties(materialEditor, props);
                 DrawMainTextureBlock();
                 DrawLightBlock();
+                DrawEmissionBlock();
             }
         }
 
@@ -54,7 +55,8 @@ namespace MobilePipeline.Shaders.Editor
         {
             GUILayout.BeginVertical(GUI.skin.box);
             GUILayout.Label("Base properties");
-            base.OnGUI(materialEditor, props);
+            //base.OnGUI(materialEditor, props);
+            _editor.PropertiesDefaultGUI(_properties);
             GUILayout.EndVertical();
         }
 
@@ -126,6 +128,32 @@ namespace MobilePipeline.Shaders.Editor
             {
                 SetKeywordEnabled("_AMBIENT", hasAmbient.floatValue > 0);
             }
+        }
+
+        private void DrawEmissionBlock()
+        {
+            GUILayout.BeginVertical(GUI.skin.box);
+            EditorGUI.BeginChangeCheck();
+            var hasEmission = FindProperty("_HasEmissionTex", _properties);
+            var emissionTexProp = FindProperty("_EmissionTex", _properties);
+            var emissionProp = FindProperty("_Emission", _properties);
+            var emissionColorProp = FindProperty("_EmissionColor", _properties);
+            EditorGUILayout.Space();
+            hasEmission.floatValue =
+                EditorGUILayout.Toggle(hasEmission.displayName + " enabled", hasEmission.floatValue > 0) ? 1 : 0;
+            if (hasEmission.floatValue > 0)
+            {
+                _editor.RangeProperty(emissionProp, emissionProp.displayName);
+                _editor.ColorProperty(emissionColorProp, emissionColorProp.displayName);
+                _editor.TextureProperty(emissionTexProp, emissionTexProp.displayName);
+            }
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                SetKeywordEnabled("_EMISSION", hasEmission.floatValue > 0);
+            }
+            
+            GUILayout.EndVertical();
         }
 
         private void DrawLightingSelector()
