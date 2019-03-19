@@ -47,7 +47,6 @@ namespace MobilePipeline.Shaders.Editor
                 DrawBaseProperties(materialEditor, props);
                 DrawMainTextureBlock();
                 DrawLightBlock();
-                DrawEmissionBlock();
             }
         }
 
@@ -62,7 +61,7 @@ namespace MobilePipeline.Shaders.Editor
 
         private void DrawMainTextureBlock()
         {
-            EditorGUI.BeginChangeCheck();
+            //EditorGUI.BeginChangeCheck();
             var hasTex = FindProperty("_HasMainTex", _properties);
             var prop = FindProperty("_MainTex", _properties);
             GUILayout.BeginVertical(GUI.skin.box);
@@ -75,7 +74,7 @@ namespace MobilePipeline.Shaders.Editor
 
             GUILayout.EndVertical();
 
-            if (EditorGUI.EndChangeCheck())
+            //if (EditorGUI.EndChangeCheck())
             {
                 SetKeywordEnabled("_MAIN_TEX", hasTex.floatValue > 0);
             }
@@ -84,7 +83,7 @@ namespace MobilePipeline.Shaders.Editor
         private void DrawLightBlock()
         {
             GUILayout.BeginVertical(GUI.skin.box);
-            EditorGUI.BeginChangeCheck();
+            //EditorGUI.BeginChangeCheck();
             var lit = FindProperty("_HasLighting", _properties);
             lit.floatValue = EditorGUILayout.Toggle(lit.displayName + " enabled", lit.floatValue > 0) ? 1 : 0;
             if (lit.floatValue > 0)
@@ -92,9 +91,10 @@ namespace MobilePipeline.Shaders.Editor
                 EditorGUILayout.Space();
                 DrawLightingSelector();
                 DrawAmbientBlock();
+                DrawEmissionBlock();
             }
 
-            if (EditorGUI.EndChangeCheck())
+            //if (EditorGUI.EndChangeCheck())
             {
                 SetKeywordEnabled("_LIT", lit.floatValue > 0);
                 if (lit.floatValue < 0.001f)
@@ -103,6 +103,7 @@ namespace MobilePipeline.Shaders.Editor
                     SetKeywordEnabled("_HALF_LAMBERT", false);
                     SetKeywordEnabled("_BLINN_PHONG", false);
                     SetKeywordEnabled("_AMBIENT", false);
+                    SetKeywordEnabled("_EMISSION", false);
                 }
             }
 
@@ -111,7 +112,7 @@ namespace MobilePipeline.Shaders.Editor
 
         private void DrawAmbientBlock()
         {
-            EditorGUI.BeginChangeCheck();
+            //EditorGUI.BeginChangeCheck();
             var hasAmbient = FindProperty("_HasAmbientTex", _properties);
             var prop = FindProperty("_AmbientTex", _properties);
             EditorGUILayout.Space();
@@ -124,41 +125,39 @@ namespace MobilePipeline.Shaders.Editor
                 GUILayout.EndVertical();
             }
 
-            if (EditorGUI.EndChangeCheck())
+            //if (EditorGUI.EndChangeCheck())
             {
                 SetKeywordEnabled("_AMBIENT", hasAmbient.floatValue > 0);
             }
         }
-
+        
+        
         private void DrawEmissionBlock()
         {
-            GUILayout.BeginVertical(GUI.skin.box);
-            EditorGUI.BeginChangeCheck();
+            //EditorGUI.BeginChangeCheck();
             var hasEmission = FindProperty("_HasEmissionTex", _properties);
-            var emissionTexProp = FindProperty("_EmissionTex", _properties);
-            var emissionProp = FindProperty("_Emission", _properties);
-            var emissionColorProp = FindProperty("_EmissionColor", _properties);
+            var prop = FindProperty("_EmissionTex", _properties);
             EditorGUILayout.Space();
             hasEmission.floatValue =
-                EditorGUILayout.Toggle(hasEmission.displayName + " enabled", hasEmission.floatValue > 0) ? 1 : 0;
+                EditorGUILayout.Toggle(prop.displayName + " enabled", hasEmission.floatValue > 0) ? 1 : 0;
             if (hasEmission.floatValue > 0)
             {
-                _editor.RangeProperty(emissionProp, emissionProp.displayName);
-                _editor.ColorProperty(emissionColorProp, emissionColorProp.displayName);
-                _editor.TextureProperty(emissionTexProp, emissionTexProp.displayName);
+                GUILayout.BeginVertical(GUI.skin.box);
+                var emission = FindProperty("_Emission", _properties);
+                _editor.RangeProperty(emission, emission.displayName);
+                _editor.TextureProperty(prop, prop.displayName);
+                GUILayout.EndVertical();
             }
 
-            if (EditorGUI.EndChangeCheck())
+            //if (EditorGUI.EndChangeCheck())
             {
                 SetKeywordEnabled("_EMISSION", hasEmission.floatValue > 0);
             }
-            
-            GUILayout.EndVertical();
         }
 
         private void DrawLightingSelector()
         {
-            EditorGUI.BeginChangeCheck();
+            //EditorGUI.BeginChangeCheck();
             var prop = FindProperty("_LightModel", _properties);
             var mode = (LightMode) prop.floatValue;
             mode = (LightMode) EditorGUILayout.Popup("Light mode", (int) mode, Constants.LightModesArray);
@@ -169,7 +168,7 @@ namespace MobilePipeline.Shaders.Editor
                 DrawGloss();
             }
 
-            if (EditorGUI.EndChangeCheck())
+            //if (EditorGUI.EndChangeCheck())
             {
                 _editor.RegisterPropertyChangeUndo("Light mode");
                 prop.floatValue = (float) mode;

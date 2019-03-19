@@ -59,7 +59,7 @@
                 fixed3 diffuse = DiffuseLight(i.normal, i.worldPos);
                 col.rgb *= diffuse;
                 
-                return col;
+                return fixed4(diffuse, col.a);
             }
             ENDCG
         }

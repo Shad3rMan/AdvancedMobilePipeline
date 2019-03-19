@@ -11,10 +11,16 @@ namespace MobilePipeline.Pipeline
         private const int MaxVisibleLights = 16;
 
         private static readonly int LightColorsId = Shader.PropertyToID("_VisibleLightColors");
-        private static readonly int LightDirectionsOrPositionsId = Shader.PropertyToID("_VisibleLightDirectionsOrPositions");
+
+        private static readonly int LightDirectionsOrPositionsId =
+            Shader.PropertyToID("_VisibleLightDirectionsOrPositions");
+
         private static readonly int LightAttenuationsId = Shader.PropertyToID("_VisibleLightAttenuations");
         private static readonly int LightSpotDirectionsId = Shader.PropertyToID("_VisibleLightSpotDirections");
-        private static readonly int LightIndicesOffsetAndCountId = Shader.PropertyToID("unity_LightIndicesOffsetAndCount");
+
+        private static readonly int LightIndicesOffsetAndCountId =
+            Shader.PropertyToID("unity_LightIndicesOffsetAndCount");
+
         private static readonly int WorldSpaceCameraPosId = Shader.PropertyToID("_WorldSpaceCameraPos");
 
         private readonly Vector4[] _lightColors = new Vector4[MaxVisibleLights];
@@ -108,19 +114,19 @@ namespace MobilePipeline.Pipeline
 
             var filterSettings = new FilterRenderersSettings(true);
 
-            if(_pipelineAsset.DrawOpaque)
+            if (_pipelineAsset.DrawOpaque)
             {
                 drawSettings.sorting.flags = SortFlags.CommonOpaque;
                 filterSettings.renderQueueRange = RenderQueueRange.opaque;
                 context.DrawRenderers(_cullResults.visibleRenderers, ref drawSettings, filterSettings);
             }
-            
-            if(_pipelineAsset.DrawSkybox)
+
+            if (_pipelineAsset.DrawSkybox)
             {
                 context.DrawSkybox(camera);
             }
 
-            if(_pipelineAsset.DrawTransparent)
+            if (_pipelineAsset.DrawTransparent)
             {
                 drawSettings.sorting.flags = SortFlags.CommonTransparent;
                 filterSettings.renderQueueRange = RenderQueueRange.transparent;
@@ -175,8 +181,7 @@ namespace MobilePipeline.Pipeline
                         float outerRad = Mathf.Deg2Rad * 0.5f * light.spotAngle;
                         float outerCos = Mathf.Cos(outerRad);
                         float outerTan = Mathf.Tan(outerRad);
-                        float innerCos =
-                            Mathf.Cos(Mathf.Atan((46f / 64f) * outerTan));
+                        float innerCos = Mathf.Cos(Mathf.Atan((46f / 64f) * outerTan));
                         float angleRange = Mathf.Max(innerCos - outerCos, 0.001f);
                         attenuation.z = 1f / angleRange;
                         attenuation.w = -outerCos * attenuation.z;

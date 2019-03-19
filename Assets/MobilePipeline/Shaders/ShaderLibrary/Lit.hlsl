@@ -10,7 +10,6 @@ CBUFFER_START(UnityPerMaterial)
     half _Specular;
     half _Gloss;
     half _Emission;
-    half4 _EmissionColor;
 CBUFFER_END
 
 CBUFFER_START(UnityPerFrame)
@@ -108,7 +107,7 @@ UNITY_INSTANCING_BUFFER_END(PerInstance)
 struct VertexInput
 {
     float4 pos : POSITION;
-    float2 uv1 : TEXCOORD0;
+    float2 uv0 : TEXCOORD0;
 #if defined(_LIT)
     float3 normal : NORMAL;
 #endif
@@ -118,16 +117,11 @@ struct VertexInput
 struct VertexOutput 
 {
     float4 clipPos : SV_POSITION;
-#if defined(_MAIN_TEX)
-    float2 uv1 : TEXCOORD0;
-#endif
-#if defined(_AMBIENT) || defined(_EMISSION)
-    float2 uv2 : TEXCOORD1;
-#endif
+    float2 uv0 : TEXCOORD0;
 #if defined(_LIT)
-    float3 normal : TEXCOORD2;
-    float3 worldPos : TEXCOORD3;
-    float3 vertexLighting : TEXCOORD4;
+    float3 normal : TEXCOORD1;
+    float3 worldPos : TEXCOORD2;
+    float3 vertexLighting : TEXCOORD3;
 #endif
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
@@ -140,12 +134,7 @@ VertexOutput LitPassVertex (VertexInput input)
 
     float4 worldPos = mul(UNITY_MATRIX_M, float4(input.pos.xyz, 1.0));
     output.clipPos = mul(unity_MatrixVP, worldPos);
-#if defined(_MAIN_TEX)
-    output.uv1 = TRANSFORM_TEX(input.uv1, _MainTex);
-#endif
-#if defined(_AMBIENT) || defined(_EMISSION)
-    output.uv2 = TRANSFORM_TEX(input.uv1, _AmbientTex);
-#endif
+    output.uv0 = TRANSFORM_TEX(input.uv0, _MainTex);
 
 #if defined(_LIT)
     output.normal = mul((float3x3)UNITY_MATRIX_M, input.normal);
@@ -165,13 +154,15 @@ float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_
     UNITY_SETUP_INSTANCE_ID(input);
     float4 albedo = float4(1, 1, 1, 1);
 #if defined(_MAIN_TEX)
-    albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv1);
+    albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv0);
 #endif
+
 #if defined(_AMBIENT)
-    float4 ambient = SAMPLE_TEXTURE2D(_AmbientTex, sampler_AmbientTex, input.uv2);
+    float4 ambient = SAMPLE_TEXTURE2D(_AmbientTex, sampler_AmbientTex, input.uv0);
 #endif
+
 #if defined(_EMISSION)
-    albedo += SAMPLE_TEXTURE2D(_EmissionTex, sampler_EmissionTex, input.uv2) * _EmissionColor * _Emission;
+    float4 emission = SAMPLE_TEXTURE2D(_EmissionTex, sampler_EmissionTex, input.uv0);
 #endif
     albedo *= UNITY_ACCESS_INSTANCED_PROP(PerInstance, _Color);
 
@@ -191,6 +182,10 @@ float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_
     color *= diffuseLight;
 #if defined(_AMBIENT)
     color *= ambient;
+#endif
+
+#if defined(_EMISSION)
+    color += emission * _Emission;
 #endif
 #endif
 
