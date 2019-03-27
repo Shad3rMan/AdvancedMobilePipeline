@@ -881,11 +881,11 @@ Light:
   m_GameObject: {fileID: 1248414325}
   m_Enabled: 1
   serializedVersion: 8
-  m_Type: 0
+  m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 30
-  m_Range: 10
-  m_SpotAngle: 22
+  m_Intensity: 1
+  m_Range: 8.106322
+  m_SpotAngle: 16.795786
   m_CookieSize: 10
   m_Shadows:
     m_Type: 0
