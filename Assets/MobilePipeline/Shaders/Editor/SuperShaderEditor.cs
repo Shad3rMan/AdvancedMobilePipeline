@@ -47,6 +47,7 @@ namespace MobilePipeline.Shaders.Editor
                 DrawBaseProperties(materialEditor, props);
                 DrawMainTextureBlock();
                 DrawLightBlock();
+                DrawPlanarBlock();
             }
         }
 
@@ -131,7 +132,6 @@ namespace MobilePipeline.Shaders.Editor
             }
         }
         
-        
         private void DrawEmissionBlock()
         {
             //EditorGUI.BeginChangeCheck();
@@ -153,6 +153,38 @@ namespace MobilePipeline.Shaders.Editor
             {
                 SetKeywordEnabled("_EMISSION", hasEmission.floatValue > 0);
             }
+        }
+        
+        private void DrawPlanarBlock()
+        {
+            //EditorGUI.BeginChangeCheck();
+            GUILayout.BeginVertical(GUI.skin.box);
+            var hasPlanar = FindProperty("_HasPlanarTex", _properties);
+            var prop = FindProperty("_PlanarTex", _properties);
+            var mask = FindProperty("_PlanarMask", _properties);
+            EditorGUILayout.Space();
+            hasPlanar.floatValue =
+                EditorGUILayout.Toggle(prop.displayName + " enabled", hasPlanar.floatValue > 0) ? 1 : 0;
+            var maskVector = mask.vectorValue;
+            if (hasPlanar.floatValue > 0)
+            {
+                GUILayout.BeginVertical("Mask", GUI.skin.box);
+                maskVector.x = EditorGUILayout.Toggle(mask.displayName + " X", mask.vectorValue.x > 0) ? 1 : 0;
+                maskVector.y = EditorGUILayout.Toggle(mask.displayName + " Y", mask.vectorValue.y > 0) ? 1 : 0;
+                maskVector.z = EditorGUILayout.Toggle(mask.displayName + " Z", mask.vectorValue.z > 0) ? 1 : 0;
+                GUILayout.EndVertical();
+                mask.vectorValue = maskVector;
+                _editor.TextureProperty(prop, prop.displayName);
+            }
+
+            //if (EditorGUI.EndChangeCheck())
+            {
+                SetKeywordEnabled("_PLANAR", hasPlanar.floatValue > 0);
+                SetKeywordEnabled("_PLANAR_X", maskVector.x > 0);
+                SetKeywordEnabled("_PLANAR_Y", maskVector.y > 0);
+                SetKeywordEnabled("_PLANAR_Z", maskVector.z > 0);
+            }
+            GUILayout.EndVertical();
         }
 
         private void DrawLightingSelector()
@@ -196,13 +228,13 @@ namespace MobilePipeline.Shaders.Editor
         private void DrawSpecular()
         {
             var prop = FindProperty("_Specular", _properties);
-            prop.floatValue = _editor.RangeProperty(prop, "Specular");
+            prop.floatValue = _editor.RangeProperty(prop, prop.displayName);
         }
 
         private void DrawGloss()
         {
             var prop = FindProperty("_Gloss", _properties);
-            prop.floatValue = _editor.RangeProperty(prop, "Gloss");
+            prop.floatValue = _editor.RangeProperty(prop, prop.displayName);
         }
 
         private void ApplyDrawMode(DrawMode mode)
@@ -254,20 +286,6 @@ namespace MobilePipeline.Shaders.Editor
                     m.DisableKeyword(keyword);
                 }
             }
-        }
-
-        private bool GetKeywordEnabled(string keyword)
-        {
-            bool enabled = false;
-            foreach (Material m in _materials)
-            {
-                if (m.IsKeywordEnabled(keyword))
-                {
-                    enabled = true;
-                }
-            }
-
-            return enabled;
         }
     }
 #endif

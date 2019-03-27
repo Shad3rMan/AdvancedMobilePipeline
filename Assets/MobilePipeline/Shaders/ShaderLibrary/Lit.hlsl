@@ -4,9 +4,11 @@
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
 
 CBUFFER_START(UnityPerMaterial)
-    float4 _MainTex_ST;
-    float4 _AmbientTex_ST;
-    float4 _EmissionTex_ST;
+    half4 _MainTex_ST;
+    half4 _AmbientTex_ST;
+    half4 _EmissionTex_ST;
+    half4 _PlanarTex_ST;
+    half4 _PlanarMask;
     half _Specular;
     half _Gloss;
     half _Emission;
@@ -41,6 +43,9 @@ SAMPLER(sampler_AmbientTex);
 
 TEXTURE2D(_EmissionTex);
 SAMPLER(sampler_EmissionTex);
+
+TEXTURE2D(_PlanarTex);
+SAMPLER(sampler_PlanarTex);
 
 float Lambert(float3 normal, float3 lightDirection)
 {
@@ -108,20 +113,21 @@ struct VertexInput
 {
     float4 pos : POSITION;
     float2 uv0 : TEXCOORD0;
-#if defined(_LIT)
     float3 normal : NORMAL;
-#endif
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 struct VertexOutput 
 {
     float4 clipPos : SV_POSITION;
-    float2 uv0 : TEXCOORD0;
+    float2 uv0 : UV0;
+    float3 normal : NORMAL;
 #if defined(_LIT)
-    float3 normal : TEXCOORD1;
-    float3 worldPos : TEXCOORD2;
-    float3 vertexLighting : TEXCOORD3;
+    float3 worldPos : WORLD_POS;
+    float3 vertexLighting : VERTEX_LIGHT;
+#endif
+#if defined(_PLANAR)
+    float4 localPos : LOCAL_POS;
 #endif
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
@@ -135,15 +141,19 @@ VertexOutput LitPassVertex (VertexInput input)
     float4 worldPos = mul(UNITY_MATRIX_M, float4(input.pos.xyz, 1.0));
     output.clipPos = mul(unity_MatrixVP, worldPos);
     output.uv0 = TRANSFORM_TEX(input.uv0, _MainTex);
+    output.normal = mul((float3x3)UNITY_MATRIX_M, input.normal);
 
 #if defined(_LIT)
-    output.normal = mul((float3x3)UNITY_MATRIX_M, input.normal);
     output.worldPos = worldPos.xyz;
     output.vertexLighting = 0;
     for (int i = 4; i < min(unity_LightIndicesOffsetAndCount.y, 8); i++) {
         int lightIndex = unity_4LightIndices1[i - 4];
         output.vertexLighting += DiffuseLight(lightIndex, output.normal, output.worldPos);
     }
+#endif
+
+#if defined(_PLANAR)
+    output.localPos = (input.pos) + 0.5;
 #endif
 
     return output;
@@ -153,20 +163,45 @@ float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_
 {
     UNITY_SETUP_INSTANCE_ID(input);
     float4 albedo = float4(1, 1, 1, 1);
+
 #if defined(_MAIN_TEX)
     albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv0);
 #endif
 
+    float3 color = albedo.rgb;
+
 #if defined(_AMBIENT)
     float4 ambient = SAMPLE_TEXTURE2D(_AmbientTex, sampler_AmbientTex, input.uv0);
+#endif
+
+#if defined(_PLANAR)
+    half4 planar = half4(0, 0, 0, 0);
+    float3 weights = abs(input.normal);
+    weights = weights / (weights.x + weights.y + weights.z);
+    
+#ifdef _PLANAR_X
+    float2 uv_front = TRANSFORM_TEX(input.localPos.xy, _PlanarTex);
+    half4 planar_xy = SAMPLE_TEXTURE2D(_PlanarTex, sampler_PlanarTex, uv_front) * weights.z;
+    color = lerp(color, planar_xy, planar_xy.a);
+#endif
+
+#ifdef _PLANAR_Y
+    float2 uv_side = TRANSFORM_TEX(input.localPos.zy, _PlanarTex);
+    half4 planar_zy = SAMPLE_TEXTURE2D(_PlanarTex, sampler_PlanarTex, uv_side) * weights.x;
+    color = lerp(color, planar_zy, planar_zy.a);
+#endif
+    
+#ifdef _PLANAR_Z
+    float2 uv_top = TRANSFORM_TEX(input.localPos.xz, _PlanarTex);
+    half4 planar_xz = SAMPLE_TEXTURE2D(_PlanarTex, sampler_PlanarTex, uv_top) * weights.y;
+    color = lerp(color, planar_xz, planar_xz.a);
+#endif
 #endif
 
 #if defined(_EMISSION)
     float4 emission = SAMPLE_TEXTURE2D(_EmissionTex, sampler_EmissionTex, input.uv0);
 #endif
     albedo *= UNITY_ACCESS_INSTANCED_PROP(PerInstance, _Color);
-
-    float3 color = albedo.rgb;
 
 #if defined(_LIT)
     input.normal = normalize(input.normal);

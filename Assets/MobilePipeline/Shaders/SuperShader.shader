@@ -8,6 +8,9 @@
         [HideInInspector] _AmbientTex("Ambient Occlusion", 2D) = "white" {}
         [HideInInspector] _HasEmissionTex ("Emission", Float) = 1
         [HideInInspector] _EmissionTex("Emission", 2D) = "black" {}
+        [HideInInspector] _HasPlanarTex ("Planar", Float) = 1
+        [HideInInspector] _PlanarTex("Planar", 2D) = "white" {}
+        [HideInInspector] _PlanarMask("Planar mask", Vector) = (1, 1, 1)
         [HideInInspector] _HasMainTex ("HasMainTex", Float) = 1
         [HideInInspector] _MainTex("Albedo & Alpha", 2D) = "white" {}
         [Enum(Off, 0, On, 1)] _ZWrite ("Z Write", Float) = 1
@@ -31,14 +34,15 @@
         Blend [_SrcBlend] [_DstBlend]
         ZWrite [_ZWrite]
 
-        Stencil {
-            Ref [_StencilRef]
-            Comp [_StencilCmp]
-            Pass [_StencilOp]
-        }
-
         Pass
         {
+            Stencil
+            {
+                Ref [_StencilRef]
+                Comp [_StencilCmp]
+                Pass [_StencilOp]
+            }
+
             HLSLPROGRAM
 
             #pragma multi_compile_instancing
@@ -47,6 +51,10 @@
             #pragma shader_feature _MAIN_TEX
             #pragma shader_feature _AMBIENT
             #pragma shader_feature _EMISSION
+            #pragma shader_feature _PLANAR
+            #pragma shader_feature _PLANAR_X
+            #pragma shader_feature _PLANAR_Z
+            #pragma shader_feature _PLANAR_Y
             #pragma shader_feature _ _LAMBERT _HALF_LAMBERT _BLINN_PHONG
 
             #include "ShaderLibrary/Lit.hlsl"
