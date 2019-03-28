@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: ATM_Orange
   m_Shader: {fileID: 4800000, guid: 11c08d3dbae9461ea797d3ae0d772c9e, type: 3}
-  m_ShaderKeywords: _AMBIENT _EMISSION _HALF_LAMBERT _LIT _MAIN_TEX
+  m_ShaderKeywords: _PLANAR_X _PLANAR_Y _PLANAR_Z
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -80,9 +80,9 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _HasAmbientTex: 1
-    - _HasEmissionTex: 1
-    - _HasLighting: 1
-    - _HasMainTex: 1
+    - _HasEmissionTex: 0
+    - _HasLighting: 0
+    - _HasMainTex: 0
     - _HasPlanarTex: 0
     - _LightModel: 1
     - _Metallic: 0
@@ -101,4 +101,4 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-    - _PlanarMask: {r: 0, g: 0, b: 0, a: 1}
+    - _PlanarMask: {r: 1, g: 1, b: 1, a: 1}

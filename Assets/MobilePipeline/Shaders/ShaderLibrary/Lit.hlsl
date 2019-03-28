@@ -198,7 +198,7 @@ float4 LitPassFragment (VertexOutput input, FRONT_FACE_TYPE isFrontFace : FRONT_
 #endif
 #endif
 
-#if defined(_EMISSION)
+#ifdef _EMISSION
     float4 emission = SAMPLE_TEXTURE2D(_EmissionTex, sampler_EmissionTex, input.uv0);
 #endif
     albedo *= UNITY_ACCESS_INSTANCED_PROP(PerInstance, _Color);
