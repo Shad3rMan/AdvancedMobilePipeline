@@ -2,7 +2,7 @@
 {
     Properties
     {
-        _Color ("Color", Color) = (1, 1, 1, 1)
+        [HideInInspector] _Color ("Color", Color) = (1, 1, 1, 1)
         [HideInInspector] _HasLighting ("Lighting", Float) = 1
         [HideInInspector] _HasAmbientTex ("Ambient occlusion", Float) = 1
         [HideInInspector] _AmbientTex("Ambient Occlusion", 2D) = "white" {}

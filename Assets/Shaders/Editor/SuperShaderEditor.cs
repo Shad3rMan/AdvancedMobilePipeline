@@ -17,6 +17,7 @@ namespace MobilePipeline.Shaders.Editor
 
         private enum LightMode
         {
+            None,
             Lambert,
             HalfLambert,
             BlinnPhong

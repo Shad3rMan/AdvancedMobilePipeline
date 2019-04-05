@@ -18,15 +18,6 @@ CBUFFER_START(UnityPerMaterial)
     half _Emission;
 CBUFFER_END
 
-CBUFFER_START(UnityPerDraw)
-    float4 unity_LightIndicesOffsetAndCount;
-    float4 unity_4LightIndices0, unity_4LightIndices1;
-CBUFFER_END
-
-#define MAX_VISIBLE_LIGHTS 16
-
-#define UNITY_MATRIX_M unity_ObjectToWorld
-
 sampler2D   _MainTex;
 sampler2D _AmbientTex;
 sampler2D _EmissionTex;
@@ -42,13 +33,13 @@ float HalfLambert(float3 normal, float3 lightDir)
     return pow(saturate(dot(normal, lightDir) * 0.5 + 0.5), 2);
 }
 
-float3 BlinnPhong(float3 normal, float3 lightDir, float3 lightColor, float3 viewDir, half specular, half gloss)
+float BlinnPhong(float3 normal, float3 lightDir, float3 lightColor, float3 viewDir, half specular, half gloss)
 {
     half3 h = normalize (lightDir + viewDir);
     half diff = saturate(dot(lightDir, normal));
-    float nh = max (0, dot (normal, h));
+    float nh = saturate(dot(h, normal));
     float spec = pow (nh, specular * 128.0) * gloss;
-    return (diff + spec) * lightColor;
+    return diff + spec;
 }
 
 float3 DiffuseLight (float3 normal, float3 worldPos)
