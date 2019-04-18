@@ -65,5 +65,5 @@
         }
     }
 
-    CustomEditor "MobilePipeline.Shaders.Editor.SuperShaderEditor"
+    CustomEditor "MobilePipeline.Shaders.Editor.SuperShaderEditorSRP"
 }

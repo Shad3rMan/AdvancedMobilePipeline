@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 namespace MobilePipeline.Shaders.Editor
 {
 #if UNITY_EDITOR
-    public class SuperShaderEditor : ShaderGUI
+    public class SuperShaderEditorSRP : ShaderGUI
     {
         private enum DrawMode
         {
