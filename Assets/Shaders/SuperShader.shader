@@ -1,4 +1,4 @@
-﻿Shader "MobilePipeline/Super Shader"
+﻿Shader "Shad3rMan/Super Shader"
 {
     Properties
     {
