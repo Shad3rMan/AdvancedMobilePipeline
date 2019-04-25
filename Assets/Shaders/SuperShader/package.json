@@ -1,0 +1,16 @@
+{
+  "name": "com.shaderman.supershader",
+  "author": "Leopotam",
+  "displayName": "Shadernam's super shader",
+  "description": "blablabla System framework. Performance, zero/small memory allocations/footprint - main goals of this project.",
+  "unity": "2018.3",
+  "version": "2019.4.22",
+  "keywords": [
+    "shader"
+  ],
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shad3rMan/AdvancedMobilePipeline.git"
+  }
+}
