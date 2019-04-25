@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.shaderman.supershader": "https://github.com/Shad3rMan/SuperShader.git",
     "com.unity.package-manager-ui": "2.0.7",
     "com.unity.render-pipelines.core": "4.10.0-preview",
     "com.unity.modules.ai": "1.0.0",
@@ -31,7 +32,12 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0",
-    "com.shaderman.supershader": "https://github.com/Shad3rMan/AdvancedMobilePipeline.git#master"
+    "com.unity.modules.xr": "1.0.0"
+  },
+  "lock": {
+    "com.shaderman.supershader": {
+      "hash": "cdd8671ee155f0196856a52a75400e031bac9f25",
+      "revision": "HEAD"
+    }
   }
 }

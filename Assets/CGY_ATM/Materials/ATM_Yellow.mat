@@ -55,11 +55,19 @@ Material:
         m_Texture: {fileID: 2800000, guid: a3c442ad5a6f25347a1682dbc13d2de0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: b71052bfeaf5b954eb3c71391407827a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 2800000, guid: 01cd9b791f5e1144cb14ea5c6a8b6d74, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _PlanarTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -78,6 +86,8 @@ Material:
     - _HasEmissionTex: 1
     - _HasLighting: 1
     - _HasMainTex: 1
+    - _HasNormalMap: 1
+    - _HasPlanarTex: 0
     - _LightModel: 0
     - _Metallic: 0
     - _Mode: 0
@@ -95,3 +105,4 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _PlanarMask: {r: 1, g: 1, b: 1, a: 1}
