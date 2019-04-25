@@ -8,7 +8,9 @@
         [HideInInspector] _AmbientTex("Ambient Occlusion", 2D) = "white" {}
         [HideInInspector] _HasEmissionTex ("Emission", Float) = 1
         [HideInInspector] _EmissionTex("Emission", 2D) = "black" {}
-        [HideInInspector] _HasPlanarTex ("Planar", Float) = 1
+        [HideInInspector] _HasNormalMap ("Normal Map", Float) = 1
+        [HideInInspector] _NormalMap("Normal Map", 2D) = "bump" {}
+        [HideInInspector] _HasPlanarTex ("Planar", Float) = 0
         [HideInInspector] _PlanarTex("Planar", 2D) = "white" {}
         [HideInInspector] _PlanarMask("Planar mask", Vector) = (1, 1, 1)
         [HideInInspector] _HasMainTex ("HasMainTex", Float) = 1
@@ -24,6 +26,7 @@
         [HideInInspector] _Specular ("Specular", Range(0.01, 1)) = 1
         [HideInInspector] _Gloss ("Glossiness", Range(0, 5)) = 1
         [HideInInspector] _Emission ("Emission", Range(0, 5)) = 1
+        [HideInInspector] _BumpScale ("Bump scale", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -51,6 +54,7 @@
             #pragma shader_feature _MAIN_TEX
             #pragma shader_feature _AMBIENT
             #pragma shader_feature _EMISSION
+            #pragma shader_feature _NORMALMAP
             #pragma shader_feature _PLANAR
             #pragma shader_feature _PLANAR_X
             #pragma shader_feature _PLANAR_Z

@@ -4,43 +4,30 @@
 #include "UnityShaderUtilities.cginc"
 #include "UnityInstancing.cginc"
 #include "UnityLightingCommon.cginc"
-
-#define TRANSFORM_TEX(tex,name) (tex.xy * name##_ST.xy + name##_ST.zw)
+#include "Library.hlsl"
 
 CBUFFER_START(UnityPerMaterial)
     half4 _MainTex_ST;
     half4 _AmbientTex_ST;
     half4 _EmissionTex_ST;
     half4 _PlanarTex_ST;
+    half4 _NormalMap_ST;
     half4 _PlanarMask;
     half _Specular;
     half _Gloss;
     half _Emission;
+    half _BumpScale;
 CBUFFER_END
 
 sampler2D   _MainTex;
 sampler2D _AmbientTex;
 sampler2D _EmissionTex;
 sampler2D _PlanarTex;
+sampler2D _NormalMap;
 
-float Lambert(float3 normal, float3 lightDir)
-{
-    return saturate(dot(lightDir, normal));
-}
-
-float HalfLambert(float3 normal, float3 lightDir)
-{
-    return pow(saturate(dot(normal, lightDir) * 0.5 + 0.5), 2);
-}
-
-float BlinnPhong(float3 normal, float3 lightDir, float3 lightColor, float3 viewDir, half specular, half gloss)
-{
-    half3 h = normalize (lightDir + viewDir);
-    half diff = saturate(dot(lightDir, normal));
-    float nh = saturate(dot(h, normal));
-    float spec = pow (nh, specular * 128.0) * gloss;
-    return diff + spec;
-}
+UNITY_INSTANCING_BUFFER_START(PerInstance)
+    UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
+UNITY_INSTANCING_BUFFER_END(PerInstance)
 
 float3 DiffuseLight (float3 normal, float3 worldPos)
 {
@@ -64,10 +51,6 @@ float3 DiffuseLight (float3 normal, float3 worldPos)
 
     return diffuse * lightColor;
 }
-
-UNITY_INSTANCING_BUFFER_START(PerInstance)
-    UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
-UNITY_INSTANCING_BUFFER_END(PerInstance)
 
 struct VertexInput
 {
@@ -158,9 +141,13 @@ float4 LitPassFragment (VertexOutput input) : SV_TARGET
     color *= UNITY_ACCESS_INSTANCED_PROP(PerInstance, _Color);
 
 #if defined(_LIT)
-    input.normal = normalize(input.normal);
-    //input.normal = IS_FRONT_VFACE(isFrontFace, input.normal, -input.normal);
-    float3 diffuseLight = DiffuseLight(input.normal, input.worldPos);
+
+    fixed3 normal = input.normal;
+#if defined(_NORMALMAP)
+    normal = UnpackScaleNormal(tex2D(_NormalMap, input.uv0), _BumpScale).xzy;
+    normal = normalize(normal);
+#endif
+    float3 diffuseLight = DiffuseLight(normal, input.worldPos);
 
     diffuseLight *= albedo.a;
     color *= diffuseLight;
