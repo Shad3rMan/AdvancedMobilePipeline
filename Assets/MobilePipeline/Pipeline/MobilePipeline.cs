@@ -38,7 +38,7 @@ namespace MobilePipeline.Pipeline
         public MobilePipeline(MobilePipelineAsset pipelineAsset)
         {
             _pipelineAsset = pipelineAsset;
-            _cameraBuffer = new CommandBuffer {name = "Render Camera"};
+            _cameraBuffer = new CommandBuffer {name = "Custom Render Camera"};
             if (_pipelineAsset.DynamicBatching)
             {
                 _drawFlags = DrawRendererFlags.EnableDynamicBatching;
@@ -87,13 +87,10 @@ namespace MobilePipeline.Pipeline
             context.SetupCameraProperties(camera);
 
             var clearFlags = camera.clearFlags;
-            _cameraBuffer.ClearRenderTarget(
-                (clearFlags & CameraClearFlags.Depth) != 0,
+            _cameraBuffer.ClearRenderTarget((clearFlags & CameraClearFlags.Depth) != 0,
                 (clearFlags & CameraClearFlags.Color) != 0,
-                camera.backgroundColor
-            );
+                camera.backgroundColor);
 
-            _cameraBuffer.BeginSample("Render Camera");
             _cameraBuffer.SetGlobalVectorArray(LightColorsId, _lightColors);
             _cameraBuffer.SetGlobalVectorArray(LightDirectionsOrPositionsId, _lightDirectionsOrPositions);
             _cameraBuffer.SetGlobalVectorArray(LightAttenuationsId, _lightAttenuations);
@@ -102,10 +99,7 @@ namespace MobilePipeline.Pipeline
             context.ExecuteCommandBuffer(_cameraBuffer);
             _cameraBuffer.Clear();
 
-            var drawSettings = new DrawRendererSettings(camera, new ShaderPassName("Super"))
-            {
-                flags = _drawFlags
-            };
+            var drawSettings = new DrawRendererSettings(camera, new ShaderPassName("Super")) {flags = _drawFlags};
 
             if (_cullResults.visibleLights.Count > 0)
             {
@@ -125,7 +119,7 @@ namespace MobilePipeline.Pipeline
             {
                 context.DrawSkybox(camera);
             }
-
+            
             if (_pipelineAsset.DrawTransparent)
             {
                 drawSettings.sorting.flags = SortFlags.CommonTransparent;
@@ -135,7 +129,6 @@ namespace MobilePipeline.Pipeline
 
             DrawDefaultPipeline(context, camera);
 
-            _cameraBuffer.EndSample("Render Camera");
             context.ExecuteCommandBuffer(_cameraBuffer);
             _cameraBuffer.Clear();
 
@@ -209,15 +202,10 @@ namespace MobilePipeline.Pipeline
             if (_errorMaterial == null)
             {
                 Shader errorShader = Shader.Find("Hidden/InternalErrorShader");
-                _errorMaterial = new Material(errorShader)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
+                _errorMaterial = new Material(errorShader) {hideFlags = HideFlags.HideAndDontSave};
             }
 
-            var drawSettings = new DrawRendererSettings(
-                camera, new ShaderPassName("ForwardBase")
-            );
+            var drawSettings = new DrawRendererSettings(camera, new ShaderPassName("ForwardBase"));
             drawSettings.SetShaderPassName(1, new ShaderPassName("PrepassBase"));
             drawSettings.SetShaderPassName(2, new ShaderPassName("Always"));
             drawSettings.SetShaderPassName(3, new ShaderPassName("Vertex"));
@@ -227,9 +215,7 @@ namespace MobilePipeline.Pipeline
 
             var filterSettings = new FilterRenderersSettings(true);
 
-            context.DrawRenderers(
-                _cullResults.visibleRenderers, ref drawSettings, filterSettings
-            );
+            context.DrawRenderers(_cullResults.visibleRenderers, ref drawSettings, filterSettings);
         }
     }
 }

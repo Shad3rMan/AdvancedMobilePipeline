@@ -8,19 +8,20 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: SuperLit 1
-  m_Shader: {fileID: 4800000, guid: 893d18db29a884b5fb298fa0b696da86, type: 3}
-  m_ShaderKeywords: _HALF_LAMBERT
+  m_Shader: {fileID: 4800000, guid: 7d7d247febc064e3eaf2a699a9afeaf9, type: 3}
+  m_ShaderKeywords: _MAIN_TEX _PLANAR_X _PLANAR_Y _PLANAR_Z
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 2000
+  stringTagMap:
+    RenderType: Geometry
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _AmbientTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 01cd9b791f5e1144cb14ea5c6a8b6d74, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -44,12 +45,12 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 9fffa34f9a9b32a42ba3e230f9fa8b92, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 10305, guid: 0000000000000000f000000000000000, type: 0}
-        m_Scale: {x: 2, y: 2}
+        m_Texture: {fileID: 2800000, guid: 476603ba792abcd479c26330b085e714, type: 3}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
@@ -63,6 +64,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _PlanarTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
     - _Cull: 2
@@ -71,16 +76,17 @@ Material:
     - _DetailNormalMapScale: 1
     - _DrawMode: 0
     - _DstBlend: 0
-    - _Emission: 0.54
+    - _Emission: 2.6
     - _Gloss: 5
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HasAmbientTex: 0
-    - _HasEmissionTex: 0
-    - _HasLighting: 1
-    - _HasMainTex: 0
-    - _LightModel: 0
+    - _HasAmbientTex: 1
+    - _HasEmissionTex: 1
+    - _HasLighting: 0
+    - _HasMainTex: 1
+    - _HasPlanarTex: 0
+    - _LightModel: 1
     - _Lit: 0
     - _Metallic: 0
     - _Mode: 0
@@ -91,8 +97,12 @@ Material:
     - _Specular: 0.387
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _StencilCmp: 0
+    - _StencilOp: 0
+    - _StencilRef: 0
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _PlanarMask: {r: 1, g: 1, b: 1, a: 1}
